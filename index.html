@@ -43,6 +43,9 @@ button{transition:transform .08s ease,background .15s,opacity .15s}button:active
 label.f{display:flex;flex-direction:column;font-size:13px;color:var(--mut);gap:4px;min-width:0}
 input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%}
 textarea{min-height:76px;resize:vertical}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;max-width:100%;min-height:44px;text-align:left}
+input::-webkit-date-and-time-value{text-align:left;margin:0}
+label.f{max-width:100%}
 input[type=checkbox]{width:auto}
 .b{background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:12px 20px;font:600 15px "Barlow",sans-serif;cursor:pointer}
 .b[disabled]{opacity:.4}
@@ -90,7 +93,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tabs button{border:1px solid var(--line);background:var(--sf);color:var(--ink);border-radius:999px;padding:8px 16px;font:600 14px "Barlow",sans-serif;cursor:pointer;white-space:nowrap}
 .tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .sp{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:12px}
 .fgrid .full{grid-column:1/-1}
 .ent{border-top:1px solid var(--line);padding:12px 0;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
 .ent:first-child{border-top:0;padding-top:0}
