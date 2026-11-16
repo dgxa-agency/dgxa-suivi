@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DGXA Suivi">
+<title>DGXA · Suivi des jeunes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face{font-family:"Barlow";font-weight:400;font-display:swap;src:url(fonts/barlow-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-weight:500;font-display:swap;src:url(fonts/barlow-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-weight:600;font-display:swap;src:url(fonts/barlow-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:600;font-display:swap;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-display:swap;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format("woff2")}
+:root{--bg:#F3F3F3;--sf:#fff;--ink:#000;--mut:#666;--line:#DCDCDC;--head:#000;--acc:#000;--hi:#000;--mid:#444;--ok:#8A8A8A}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#000;--sf:#111;--ink:#fff;--mut:#9A9A9A;--line:#2A2A2A;--head:#000;--acc:#fff;--hi:#fff;--mid:#C8C8C8;--ok:#777}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 "Barlow",system-ui,sans-serif;padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0}
+header{background:var(--head);color:#fff;border-bottom:1px solid #ffffff22;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+header h1{font-size:26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}header h1 img{height:28px;width:auto;display:block}header small{opacity:.7;font-size:14px;font-family:"Barlow",sans-serif;font-weight:500}
+header button{background:none;border:1px solid #ffffff66;color:#fff;border-radius:6px;padding:5px 10px;font:500 13px "Barlow",sans-serif;cursor:pointer}
+main{max-width:980px;margin:0 auto;padding:20px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label.f{display:flex;flex-direction:column;font-size:13px;color:var(--mut);gap:3px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+textarea{width:100%;min-height:70px;resize:vertical}input[type=number]{width:96px}
+.b{background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:10px 16px;font:600 15px "Barlow",sans-serif;cursor:pointer}
+.g{background:none;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:6px 10px;font:500 13px "Barlow",sans-serif;cursor:pointer}
+.danger{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.fe{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.fe label{border:1px solid var(--line);border-radius:6px;padding:7px 11px;cursor:pointer;font-size:14px;background:var(--bg)}
+.fe input{position:absolute;opacity:0;width:0}
+.fe label:has(input:checked){background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fe label:has(input:focus-visible){outline:2px solid var(--acc)}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--mut);font-size:13px;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.k{cursor:pointer}tr.k:hover td{background:var(--bg)}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid currentColor;margin:1px 2px 1px 0;white-space:nowrap}
+.hi{color:var(--hi)}.tag.hi{background:var(--ink);color:var(--bg);border-color:var(--ink)}.tag.ok{border-style:dashed}.mid{color:var(--mid)}.ok{color:var(--ok)}.mut{color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:12px}
+.kpi b{display:block;font:700 30px "Barlow Condensed",sans-serif}.kpi span{font-size:13px;color:var(--mut)}
+.sp{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.pin{font:700 28px "Barlow Condensed",sans-serif;letter-spacing:8px;text-align:center;width:160px}
+.empty{padding:24px;text-align:center;color:var(--mut)}
+.warn{border-color:var(--mid)}
+#dlg{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+#dlg[hidden]{display:none}
+#dlg .card{max-width:380px;width:100%;margin:0}
+details summary{cursor:pointer;color:var(--mut);font-size:14px}
+</style>
+</head>
+<body>
+<header><h1><img src="logo.png" alt="DGXA"><span>Suivi des jeunes <small id="who"></small></span></h1><button id="sw" data-act="sw" hidden>Changer de mode</button></header>
+<main id="app"></main>
+<div id="dlg" hidden role="dialog" aria-modal="true"><div class="card"><p id="dlgt" style="margin:0 0 14px;font-weight:600"></p><div class="row" style="justify-content:flex-end"><button class="g" id="dlgn">Annuler</button><button class="b danger" id="dlgy">Supprimer</button></div></div></div>
+<script>
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const days=d=>Math.floor((Date.parse(today())-Date.parse(d))/864e5);
+const fmt=d=>new Date(d+"T00:00:00Z").toLocaleDateString("fr-FR",{day:"2-digit",month:"short",timeZone:"UTC"});
+const iso=t=>new Date(t).toISOString().slice(0,10);
+const wk=d=>{const x=new Date(d+"T00:00:00Z");x.setUTCDate(x.getUTCDate()-(x.getUTCDay()+6)%7);return x.toISOString().slice(0,10)};
+const f1=n=>n==null?"—":(Math.round(n*10)/10).toString().replace(".",",");
+const uid=n=>Math.random().toString(36).slice(2,2+n);
+const FEEL=["","Très mauvais","Mauvais","Moyen","Bon","Très bon"],FC=["","hi","hi","mid","ok","ok"];
+const ROLES=["Titulaire","Remplaçant","Non utilisé","Hors groupe"];
+const FAT=["","Frais","Bien","Normal","Fatigué","Épuisé"];
+const INJ=["Aucune","Gêne / douleur","Blessure"];
+const ZONES=["Cheville","Pied","Genou","Mollet","Cuisse / ischios","Hanche / aine","Dos","Épaule","Tête","Autre"];
+const POSTES=["","Gardien","Défenseur central","Latéral","Milieu défensif","Milieu","Milieu offensif","Ailier","Attaquant"];
+const age=b=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(b||""))return null;const t=today();let a=+t.slice(0,4)-+b.slice(0,4);if(t.slice(5)<b.slice(5))a--;return a};
+
+/* ---------- Stockage local ---------- */
+const K="sj-auto";let S=null,STORE=true;
+try{S=JSON.parse(localStorage.getItem(K))}catch(e){STORE=false}
+S=S||{};S.mode=S.mode||null;S.my=S.my||"";S.pin=S.pin||"";S.lastExp=S.lastExp||0;
+S.me=S.me||{id:uid(8)+Date.now().toString(36),name:"",team:"",matches:[],t:0,sentT:0};
+S.ag=S.ag||{players:{},assign:{},notes:{}};S.ag.info=S.ag.info||{};
+let SEL=null,MINE=false,CODE="",MSG="",EXPORT="",SAVEERR=false,EDIT=null,Q="",SORT="alert",ALERTONLY=false,INST=null,UNLOCK=false,PINMSG="";
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent),standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();INST=e;render()});
+addEventListener("appinstalled",()=>{INST=null;render()});
+if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+const installCard=()=>standalone?"":INST?`<div class="card"><b>Installer l’appli</b> <span class="mut">pour l’ouvrir depuis l’écran d’accueil, même sans réseau.</span> <button class="b" data-act="install" style="margin-left:8px">Installer</button></div>`
+  :isIOS?`<div class="card"><details><summary><b>Ajouter l’appli à l’écran d’accueil</b></summary><p class="mut" style="margin:6px 0 0">Dans Safari : touchez le bouton Partager, puis « Sur l’écran d’accueil ».</p></details></div>`:"";
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S));SAVEERR=false}catch(e){SAVEERR=true}};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+/* ---------- Boîte de confirmation intégrée ---------- */
+function ask(msg){return new Promise(res=>{const d=$("#dlg");$("#dlgt").textContent=msg;d.hidden=false;$("#dlgn").focus();
+  const done=v=>{d.hidden=true;$("#dlgy").onclick=$("#dlgn").onclick=null;res(v)};$("#dlgy").onclick=()=>done(true);$("#dlgn").onclick=()=>done(false)})}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#dlg").hidden)$("#dlgn").click()});
+
+/* ---------- Copier / télécharger ---------- */
+async function copy(txt){try{await navigator.clipboard.writeText(txt);return true}catch(e){return false}}
+let DL=null;try{window.claude&&claude.use&&claude.use("downloads").then(d=>{DL=d}).catch(()=>{})}catch(e){}
+async function download(name,txt){
+  if(DL){try{await DL.save({filename:name,data:new Blob([txt],{type:"application/json"})});return true}catch(e){return false}}
+  try{const l=document.createElement("a");l.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));l.download=name;document.body.appendChild(l);l.click();l.remove();return true}catch(e){return false}
+}
+
+const b64=u8=>{let s="";for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
+const unb64=t=>{t=t.replace(/-/g,"+").replace(/_/g,"/");while(t.length%4)t+="=";return Uint8Array.from(atob(t),c=>c.charCodeAt(0))};
+const pipe=async(u8,S)=>new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(S)).arrayBuffer());
+async function enc(o){const j=new TextEncoder().encode(JSON.stringify(o));
+  if(window.CompressionStream){try{return"JF2:"+b64(await pipe(j,new CompressionStream("deflate-raw")))}catch(e){}}
+  return"JF1:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+async function dec(s){if(s.startsWith("JF2:"))return JSON.parse(new TextDecoder().decode(await pipe(unb64(s.slice(4)),new DecompressionStream("deflate-raw"))));
+  return JSON.parse(decodeURIComponent(escape(atob(s.slice(4)))))}
+const CODERX=/JF[12]:[A-Za-z0-9+\/=_-]+/g;
+const clean=m=>({id:String(m.id||"").replace(/\W/g,"").slice(0,12)||uid(7),date:/^\d{4}-\d{2}-\d{2}$/.test(m.date)?m.date:today(),opp:String(m.opp||"").slice(0,60),role:ROLES.includes(m.role)?m.role:"Titulaire",min:Math.max(0,Math.min(130,+m.min||0)),feel:Math.max(1,Math.min(5,Math.round(+m.feel)||3)),note:String(m.note||"").slice(0,500),fat:Math.max(0,Math.min(5,Math.round(+m.fat)||0)),inj:Math.max(0,Math.min(2,Math.round(+m.inj)||0)),zone:ZONES.includes(m.zone)?m.zone:""});
+const cleanProf=o=>({poste:POSTES.includes(o.poste)?o.poste:"",birth:/^\d{4}-\d{2}-\d{2}$/.test(o.birth||"")?o.birth:""});
+
+function stats(l){
+  const m=(l&&l.matches||[]).slice().sort((a,b)=>a.date<b.date?1:-1);
+  const m28=m.filter(x=>days(x.date)<28),f=m28.filter(x=>x.feel).map(x=>x.feel);
+  const A=[],since=m.length?days(m[0].date):null;
+  if(since==null||since>10)A.push(["mid",since==null?"Aucune saisie":"Pas de saisie depuis "+since+" j"]);
+  if(m.length>1&&m[0].feel<=2&&m[1].feel<=2)A.push(["hi","Ressenti bas (2 matchs)"]);
+  if(m.length&&m[0].inj)A.push(["hi",(m[0].inj===2?"Blessure":"Douleur")+(m[0].zone?" : "+m[0].zone.toLowerCase():"")]);
+  else if(m.length>1&&m[1].inj&&days(m[1].date)<14)A.push(["mid","Douleur récente"+(m[1].zone?" ("+m[1].zone.toLowerCase()+")":"")]);
+  if(m.length&&m[0].fat>=5)A.push(["hi","Épuisé"]);else if(m.length>1&&m[0].fat>=4&&m[1].fat>=4)A.push(["mid","Fatigue élevée (2 matchs)"]);
+  if(m.length&&m28.reduce((s,x)=>s+x.min,0)<90)A.push(["mid","Peu de temps de jeu"]);
+  return{m,since,min7:m.filter(x=>days(x.date)<7).reduce((s,x)=>s+x.min,0),min28:m28.reduce((s,x)=>s+x.min,0),feel:f.length?f.reduce((a,b)=>a+b,0)/f.length:null,last:m.length?m[0].feel:null,A};
+}
+function weeks(m){const o={};m.forEach(x=>{const k=wk(x.date),w=o[k]||(o[k]={k,n:0,min:0,f:[]});w.n++;w.min+=x.min;if(x.feel)w.f.push(x.feel)});
+  return Object.values(o).sort((a,b)=>a.k<b.k?1:-1).map(w=>({...w,feel:w.f.length?w.f.reduce((a,b)=>a+b,0)/w.f.length:null}))}
+function chart(m){
+  const W=[];for(let i=7;i>=0;i--)W.push(new Date(Date.parse(wk(today()))-i*7*864e5).toISOString().slice(0,10));
+  const by={};weeks(m).forEach(w=>by[w.k]=w.min);const v=W.map(k=>by[k]||0),mx=Math.max(90,...v),bw=70;
+  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par semaine">${v.map((x,i)=>{const h=x/mx*100;return`<rect x="${i*bw+10}" y="${116-h}" width="${bw-20}" height="${h}" rx="3" fill="var(--acc)"/><text x="${i*bw+bw/2}" y="${108-h}" text-anchor="middle" font-size="11" fill="var(--ink)">${x||""}</text><text x="${i*bw+bw/2}" y="134" text-anchor="middle" font-size="10" fill="var(--mut)">${fmt(W[i])}</text>`}).join("")}</svg>`}
+const phys=x=>[x.inj?`<span class="tag hi">${x.inj===2?"Blessure":"Douleur"}${x.zone?" · "+esc(x.zone):""}</span>`:"",x.fat?`<span class="tag ${x.fat>=4?"mid":"ok"}">${esc(FAT[x.fat])}</span>`:""].join("")||"—";
+const ft=x=>x?`<span class="tag ${FC[x]}">${x} · ${FEEL[x]}</span>`:"—";
+function history(l,del){const s=stats(l),w=weeks(s.m);
+  return`<div class="card"><h3>Minutes jouées par semaine</h3>${chart(s.m)}</div>
+  <div class="card sc"><h3 style="margin-bottom:8px">Par semaine</h3><table><tr><th>Semaine du</th><th>Matchs</th><th>Minutes</th><th>Ressenti moyen</th></tr>${w.slice(0,12).map(x=>`<tr><td>${fmt(x.k)}</td><td>${x.n}</td><td>${x.min}</td><td>${f1(x.feel)}</td></tr>`).join("")||'<tr><td colspan="4" class="mut">Aucun match.</td></tr>'}</table></div>
+  <div class="card sc"><h3 style="margin-bottom:8px">Matchs</h3><table><tr><th>Date</th><th>Adversaire</th><th>Rôle</th><th>Min</th><th>Ressenti</th><th>Physique</th><th>Commentaire</th>${del?"<th></th>":""}</tr>${s.m.map(x=>`<tr><td>${fmt(x.date)}</td><td>${esc(x.opp)}</td><td>${esc(x.role)}</td><td>${x.min}</td><td>${ft(x.feel)}</td><td>${phys(x)}</td><td>${esc(x.note)}</td>${del?`<td style="white-space:nowrap"><button class="g" data-edit="${esc(x.id)}">Modifier</button> <button class="g" data-del="${esc(x.id)}">Supprimer</button></td>`:""}</tr>`).join("")||'<tr><td colspan="8" class="mut">Aucun match saisi.</td></tr>'}</table></div>`}
+
+const storeWarn=()=>(!STORE||SAVEERR)?`<div class="card warn"><b class="mid">Attention :</b> ce navigateur n’enregistre pas les données. Elles seront perdues à la fermeture de la page — ${S.mode==="agency"?"exportez la base régulièrement":"envoyez vos saisies à l’agence après chaque match"}.</div>`:"";
+
+/* ---------- Choix du mode ---------- */
+const modeView=()=>`${installCard()}<div class="card"><h2 style="margin-bottom:6px">Bienvenue</h2><p class="mut">Cette application fonctionne sans serveur : les données restent sur cet appareil. Choisissez votre rôle.</p><div class="row"><button class="b" data-act="mode" data-m="player">Je suis joueur</button><button class="b" data-act="mode" data-m="agency">Je suis l’agence</button></div></div>`;
+
+/* ---------- Mode joueur ---------- */
+const profFields=p=>`<label class="f">Poste<select id="pp">${POSTES.map(x=>`<option value="${esc(x)}"${p.poste===x?" selected":""}>${x||"—"}</option>`).join("")}</select></label><label class="f">Date de naissance<input type="date" id="pb" value="${esc(p.birth||"")}" max="${today()}"></label>`;
+function playerView(){
+  const m=S.me;
+  if(!m.name)return`<div class="card"><h2 style="margin-bottom:6px">Votre profil</h2><div class="row"><label class="f">Nom<input id="pn"></label><label class="f">Équipe<input id="pt" placeholder="Ex. U21"></label>${profFields({})}<button class="b" data-act="prof">Continuer</button></div>
+  <details style="margin-top:14px"><summary>Vous changez d’appareil ? Restaurez votre suivi</summary><p class="mut" style="margin:8px 0">Collez le dernier code que vous avez envoyé à l’agence.</p><textarea id="rc" placeholder="Collez le code ici (JF2:…)"></textarea><p id="rerr" class="hi" style="min-height:20px;margin:6px 0"></p><button class="g" data-act="restore">Restaurer</button></details></div>`;
+  const pend=m.matches.length&&m.t>m.sentT,E=EDIT&&m.matches.find(x=>x.id===EDIT),hasMin=!E||E.role==="Titulaire"||E.role==="Remplaçant";
+  return`${storeWarn()}${CODE?`<div class="card" style="border-color:var(--ink)"><b>Code à envoyer à l’agence</b><p class="mut" style="margin:4px 0 8px">${esc(MSG)}</p><textarea readonly id="code" onfocus="this.select()">${esc(CODE)}</textarea><div class="row" style="margin-top:8px"><button class="b" data-act="copycode">Copier le code</button><button class="g" data-act="closecode">Fermer</button></div></div>`:""}
+  ${pend&&!CODE?`<div class="card" style="border-color:var(--ink)"><b>Pensez à envoyer vos saisies à l’agence.</b> <button class="b" data-act="send" style="margin-left:8px">Envoyer à l’agence</button></div>`:""}
+  ${installCard()}
+  <div class="card" id="form"${EDIT?' style="border-color:var(--ink)"':""}><h3 style="margin-bottom:10px">${E?"Modifier le match":"Saisir un match"} — ${esc(m.name)}</h3><div class="row">
+  <label class="f">Date<input type="date" id="md" value="${E?E.date:today()}" max="${today()}"></label><label class="f">Adversaire<input id="mo" value="${esc(E?E.opp:"")}"></label>
+  <label class="f">Rôle<select id="mr">${ROLES.map(r=>`<option${E&&E.role===r?" selected":""}>${r}</option>`).join("")}</select></label>
+  <label class="f" id="mml" style="opacity:${hasMin?1:.4}">Minutes jouées<input type="number" id="mm" min="0" max="130" inputmode="numeric" value="${E&&hasMin?E.min:""}"${hasMin?"":" disabled"}></label></div>
+  <p class="mut" style="margin:12px 0 0">Votre ressenti sur le match</p><div class="fe">${[1,2,3,4,5].map(i=>`<label><input type="radio" name="mf" value="${i}"${E&&E.feel===i?" checked":""}>${i} · ${FEEL[i]}</label>`).join("")}</div>
+  <p class="mut" style="margin:4px 0 0">Votre état physique après le match (facultatif)</p><div class="fe">${[1,2,3,4,5].map(i=>`<label><input type="radio" name="mfa" value="${i}"${E&&E.fat===i?" checked":""}>${FAT[i]}</label>`).join("")}</div>
+  <div class="row" style="margin-bottom:12px"><label class="f">Douleur ou blessure<select id="mi">${INJ.map((x,i)=>`<option value="${i}"${E&&E.inj===i?" selected":""}>${x}</option>`).join("")}</select></label><label class="f" id="mzl" style="opacity:${E&&E.inj?1:.4}">Où ?<select id="mz"${E&&E.inj?"":" disabled"}><option value="">—</option>${ZONES.map(z=>`<option${E&&E.zone===z?" selected":""}>${z}</option>`).join("")}</select></label></div>
+  <label class="f">Commentaire (facultatif)<textarea id="mn" maxlength="500">${esc(E?E.note:"")}</textarea></label><p id="err" class="hi" style="min-height:20px;margin:8px 0"></p>
+  <div class="row"><button class="b" data-act="add">${E?"Enregistrer les modifications":"Enregistrer"}</button>${E?'<button class="g" data-act="canceledit">Annuler</button>':""}</div></div>${history(m,true)}
+  <div class="card"><button class="g" data-act="send">Envoyer à l’agence</button> <span class="mut">Dernier envoi : ${m.sentT?fmt(iso(m.sentT)):"jamais"}</span></div>
+  <div class="card"><details><summary><b>Mon profil</b></summary><div class="row" style="margin-top:10px"><label class="f">Nom<input id="pn" value="${esc(m.name)}"></label><label class="f">Équipe<input id="pt" value="${esc(m.team)}"></label>${profFields(m)}<button class="g" data-act="prof">Enregistrer</button></div></details></div>`;
+}
+async function send(){
+  const m=S.me;CODE=await enc({id:m.id,name:m.name,team:m.team,poste:m.poste||"",birth:m.birth||"",t:m.t,matches:m.matches});
+  MSG="Copiez ce code et envoyez-le par message (WhatsApp, SMS…) à l’agence.";
+  let done=false;
+  if(navigator.share){try{await navigator.share({title:"Suivi "+m.name,text:CODE});done=true;MSG="Code partagé. Si l’envoi n’a pas abouti, copiez-le ci-dessous."}catch(e){}}
+  if(!done&&await copy(CODE))MSG="Code copié. Collez-le dans un message à l’agence.";
+  m.sentT=Date.now();save();render();
+}
+
+/* ---------- Mode agence ---------- */
+const asg=id=>(S.ag.assign[id]||{}).v||"";
+async function importCodes(txt){
+  const t=txt.trim();
+  if(t.startsWith("{")){try{const o=JSON.parse(t);mergeAg(o.players?o:(o.ag||{}));MSG="Base collée importée et fusionnée."}catch(e){MSG="Texte de base illisible."}return}
+  const c=t.match(CODERX)||[];let ok=0,up=0,bad=0;
+  for(const x of c){try{const o=await dec(x);if(!o.id||!o.name||!Array.isArray(o.matches))throw 0;
+    const id=String(o.id).replace(/\W/g,"").slice(0,24),cur=S.ag.players[id];ok++;
+    if(!cur||(+o.t||0)>cur.t){S.ag.players[id]={name:String(o.name).slice(0,60),team:String(o.team||"").slice(0,20),...cleanProf(o),matches:o.matches.slice(0,500).map(clean),t:+o.t||0,rcv:Date.now()};up++}else cur.rcv=Date.now()}catch(e){bad++}}
+  save();MSG=c.length?`${ok} code(s) lu(s), ${up} joueur(s) mis à jour${bad?", "+bad+" illisible(s)":""}.`:"Aucun code trouvé dans le texte collé.";
+}
+function mergeAg(a){
+  Object.entries(a.players||{}).forEach(([id,p])=>{if(!p||!p.name||!Array.isArray(p.matches))return;const c=S.ag.players[id];if(!c||p.t>c.t||(p.t===c.t&&(p.rcv||0)>(c.rcv||0)))S.ag.players[id]={name:String(p.name).slice(0,60),team:String(p.team||"").slice(0,20),...cleanProf(p),matches:p.matches.slice(0,500).map(clean),t:+p.t||0,rcv:+p.rcv||0}});
+  Object.entries(a.info||{}).forEach(([id,v])=>{const c=S.ag.info[id];if(v&&(!c||v.t>c.t))S.ag.info[id]={club:String(v.club||"").slice(0,60),parent:String(v.parent||"").slice(0,60),tel:String(v.tel||"").slice(0,30),t:+v.t||0}});
+  Object.entries(a.assign||{}).forEach(([id,v])=>{const c=S.ag.assign[id];if(v&&(!c||v.t>c.t))S.ag.assign[id]={v:String(v.v||"").slice(0,40),t:+v.t||0}});
+  Object.entries(a.notes||{}).forEach(([id,L])=>{if(!Array.isArray(L))return;const cur=S.ag.notes[id]=S.ag.notes[id]||[];L.forEach(n=>{if(!n||!n.id)return;const c=cur.find(x=>x.id===n.id);if(!c)cur.push({id:String(n.id),at:String(n.at||new Date().toISOString()),by:String(n.by||"").slice(0,40),text:String(n.text||"").slice(0,2000),del:!!n.del});else if(n.del)c.del=true})});
+  save();
+}
+const backupCard=()=>{const n=Object.keys(S.ag.players).length,d=S.lastExp?days(iso(S.lastExp)):null;if(!n||(d!=null&&d<7))return"";
+  return`<div class="card warn" style="border-width:2px;border-color:var(--ink)"><b>Sauvegarde ${d==null?"jamais faite":"il y a "+d+" jours"}.</b> <span class="mut">Les données sont uniquement sur cet appareil : exportez la base et gardez le fichier en lieu sûr (mail, Drive…).</span><div class="row" style="margin-top:8px"><button class="b" data-act="exp">Exporter maintenant</button><button class="g" data-act="expcopy">Copier la base</button></div></div>`};
+const pinCard=()=>`<div class="card"><details${PINMSG?" open":""}><summary><b>Code PIN de l’espace agence</b> <span class="mut">${S.pin?"· activé":"· désactivé"}</span></summary><p class="mut" style="margin:8px 0">Le code est demandé à chaque ouverture de l’espace agence. C’est une protection simple contre un regard indiscret sur un téléphone partagé.</p><div class="row"><label class="f">${S.pin?"Nouveau code":"Code"} (4 à 8 chiffres)<input id="np" type="password" inputmode="numeric" maxlength="8" style="width:150px"></label><button class="g" data-act="setpin">${S.pin?"Changer":"Activer"}</button>${S.pin?'<button class="g" data-act="rmpin">Retirer le code</button><button class="g" data-act="lock">Verrouiller maintenant</button>':""}</div>${PINMSG?`<p style="margin:8px 0 0"><b>${esc(PINMSG)}</b></p>`:""}</details></div>`;
+const lockView=()=>`<div class="card" style="text-align:center;max-width:360px;margin:40px auto"><h2 style="margin-bottom:6px">Espace agence</h2><p class="mut">Entrez votre code PIN.</p><input id="pin" class="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><p id="pinerr" class="hi" style="min-height:20px;margin:8px 0"></p><button class="b" data-act="unlock">Déverrouiller</button><p class="mut" style="font-size:13px;margin-top:16px">Code oublié ? Il faut effacer les données de l’appli dans le navigateur, puis réimporter votre dernière sauvegarde.</p></div>`;
+const hpin=async p=>{const d=new TextEncoder().encode("dgxa:"+p);try{return b64(new Uint8Array(await crypto.subtle.digest("SHA-256",d)))}catch(e){let h=2166136261;for(const c of d)h=Math.imul(h^c,16777619);return"f"+(h>>>0).toString(36)}};
+function transfer(){return`<div class="card"><h3 style="margin-bottom:8px">Recevoir et partager</h3>
+  <p class="mut" style="margin:0 0 8px">Collez ici un ou plusieurs codes reçus des joueurs (tous à la suite si vous voulez).</p>
+  <textarea id="paste" placeholder="Collez le code ici (JF2:…)"></textarea><div class="row" style="margin-top:8px"><button class="b" data-act="imp">Importer les codes</button></div>
+  ${MSG?`<p style="margin:8px 0 0"><b>${esc(MSG)}</b></p>`:""}
+  <hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><p class="mut" style="margin:0 0 8px">Pour synchroniser avec vos associés : exportez votre base et envoyez-la, ils l’importent chez eux. Les données les plus récentes de chaque joueur sont conservées, et les notes sont réunies. Pensez aussi à exporter régulièrement pour garder une sauvegarde.</p>
+  <div class="row"><button class="g" data-act="exp">Exporter la base (fichier)</button><button class="g" data-act="expcopy">Copier la base (texte)</button><label class="g" style="cursor:pointer">Importer une base (fichier)<input type="file" id="fi" accept=".json,application/json" hidden></label></div>
+  ${EXPORT?`<p class="mut" style="margin:10px 0 4px">Texte de la base — à coller dans « Importer les codes » chez un associé :</p><textarea readonly onfocus="this.select()">${esc(EXPORT)}</textarea>`:""}</div>`}
+function agencyView(){
+  const P=S.ag.players;
+  if(SEL&&P[SEL]){
+    const l=P[SEL],s=stats(l),n=(S.ag.notes[SEL]||[]).filter(x=>!x.del).sort((a,b)=>a.at<b.at?1:-1);
+    return`${storeWarn()}<div class="sp"><button class="g" data-act="back">← Tous les joueurs</button><h2>${esc(l.name)} <span class="mut" style="font-size:18px">${esc([l.team,l.poste,age(l.birth)!=null?age(l.birth)+" ans":""].filter(Boolean).join(" · "))}</span></h2></div>
+    <div class="kpis"><div class="kpi"><b>${s.min7}</b><span>minutes (7 j)</span></div><div class="kpi"><b>${s.min28}</b><span>minutes (4 sem.)</span></div><div class="kpi"><b>${f1(s.feel)}</b><span>ressenti moyen /5</span></div><div class="kpi"><b>${s.since==null?"—":s.since+" j"}</b><span>depuis le dernier match</span></div></div>
+    ${s.A.length?`<div class="card">${s.A.map(a=>`<span class="tag ${a[0]}">${esc(a[1])}</span>`).join("")}</div>`:""}
+    <div class="card"><h3 style="margin-bottom:8px">Fiche</h3><div class="row"><label class="f">Responsable<input id="asg" value="${esc(asg(SEL))}" style="width:180px"></label>${["club","parent","tel"].map(k=>`<label class="f">${{club:"Club actuel",parent:"Contact parent",tel:"Téléphone parent"}[k]}<input data-info="${k}" ${k==="tel"?'type="tel" inputmode="tel"':""} value="${esc((S.ag.info[SEL]||{})[k]||"")}" style="width:180px"></label>`).join("")}</div>
+    <p class="mut" style="margin:10px 0 0;font-size:13px">Poste et date de naissance sont renseignés par le joueur${l.birth?" (né le "+fmt(l.birth)+" "+l.birth.slice(0,4)+")":""}.</p><div style="margin-top:10px"><button class="g" data-act="rmplayer">Retirer ce joueur</button></div></div>
+    <div class="card"><h3 style="margin-bottom:8px">Notes internes</h3><textarea id="nt" placeholder="Ex. Échange avec le club, accord des parents…"></textarea><div style="margin:8px 0"><button class="b" data-act="note">Ajouter la note</button></div>
+    ${n.map(x=>`<div style="padding:8px 0;border-top:1px solid var(--line)"><span class="mut">${fmt(x.at.slice(0,10))} · ${esc(x.by||"?")}</span> <button class="g" data-ndel="${esc(x.id)}" style="float:right">Supprimer</button><br>${esc(x.text)}</div>`).join("")||'<span class="mut">Aucune note.</span>'}</div>${history(l,false)}`}
+  const me=S.my.toLowerCase(),q=Q.toLowerCase(),ST={};Object.keys(P).forEach(id=>ST[id]=stats(P[id]));
+  const score=s=>s.A.reduce((n,a)=>n+(a[0]==="hi"?10:1),0);
+  const ids=Object.keys(P).filter(id=>(!MINE||!me||asg(id).toLowerCase()===me)&&(!q||(P[id].name+" "+P[id].team+" "+(P[id].poste||"")+" "+asg(id)+" "+((S.ag.info[id]||{}).club||"")).toLowerCase().includes(q))&&(!ALERTONLY||ST[id].A.length))
+    .sort((a,b)=>SORT==="alert"?score(ST[b])-score(ST[a])||P[a].name.localeCompare(P[b].name):SORT==="last"?(ST[a].since??1e9)-(ST[b].since??1e9):P[a].name.localeCompare(P[b].name));
+  const nAl=Object.keys(P).filter(id=>ST[id].A.some(a=>a[0]==="hi")).length;
+  return`${storeWarn()}${backupCard()}${installCard()}<div class="card"><div class="row"><label class="f">Mon prénom<input id="my" value="${esc(S.my)}" style="width:150px"></label><label style="display:flex;gap:6px;align-items:center;padding-bottom:9px"><input type="checkbox" id="mine" ${MINE?"checked":""}>Mes joueurs seulement</label><span style="flex:1"></span><button class="g" data-act="applink" style="margin-bottom:4px">Copier le lien de l’appli (pour les joueurs)</button></div></div>
+  ${Object.keys(P).length?`<div class="kpis"><div class="kpi"><b>${Object.keys(P).length}</b><span>joueurs suivis</span></div><div class="kpi"><b class="${nAl?"hi":""}">${nAl}</b><span>alerte(s) prioritaire(s)</span></div><div class="kpi"><b>${Object.keys(P).filter(id=>ST[id].since!=null&&ST[id].since<=10).length}</b><span>à jour (≤ 10 j)</span></div></div>
+  <div class="sp"><h2>Vue d’ensemble</h2><span class="mut">${ids.length} joueur(s)</span></div>
+  <div class="row" style="margin-bottom:12px"><label class="f">Rechercher<input id="q" type="search" value="${esc(Q)}" placeholder="Nom, équipe, responsable" style="width:220px"></label><label class="f">Trier par<select id="sort"><option value="alert"${SORT==="alert"?" selected":""}>Alertes d’abord</option><option value="name"${SORT==="name"?" selected":""}>Nom</option><option value="last"${SORT==="last"?" selected":""}>Dernier match</option></select></label><label style="display:flex;gap:6px;align-items:center;padding-bottom:9px"><input type="checkbox" id="alonly" ${ALERTONLY?"checked":""}>Avec alerte seulement</label><span style="flex:1"></span><button class="g" data-act="csv" style="margin-bottom:4px">Exporter les matchs (Excel/CSV)</button></div><div class="card sc"><table><tr><th>Joueur</th><th>Équipe</th><th>Poste</th><th>Âge</th><th>Responsable</th><th>Dernier match</th><th>Min. 7 j</th><th>Min. 4 sem.</th><th>Ressenti moy.</th><th>Dernier</th><th>Code reçu le</th><th>Alertes</th></tr>
+  ${ids.map(id=>{const l=P[id],s=stats(l);return`<tr class="k" data-pid="${esc(id)}"><td><b>${esc(l.name)}</b></td><td>${esc(l.team)}</td><td>${esc(l.poste||"—")}</td><td>${age(l.birth)??"—"}</td><td>${esc(asg(id)||"—")}</td><td>${s.since==null?"—":s.since+" j"}</td><td>${s.min7}</td><td>${s.min28}</td><td>${f1(s.feel)}</td><td>${ft(s.last)}</td><td>${l.rcv?fmt(iso(l.rcv)):"—"}</td><td>${s.A.map(a=>`<span class="tag ${a[0]}">${esc(a[1])}</span>`).join("")||'<span class="tag ok">RAS</span>'}</td></tr>`}).join("")}</table></div>`:'<div class="card empty">Aucun joueur pour le moment. Importez les codes envoyés par vos joueurs ci-dessous.</div>'}${transfer()}${pinCard()}`;
+}
+
+/* ---------- Actions ---------- */
+document.addEventListener("click",async ev=>{
+  const t=ev.target.closest("[data-act],[data-pid],[data-del],[data-ndel],[data-edit]");if(!t)return;
+  const a=t.dataset.act,m=S.me;
+  if(t.dataset.edit){EDIT=t.dataset.edit;render();$("#form").scrollIntoView({behavior:"smooth"});return}
+  if(t.dataset.pid){SEL=t.dataset.pid;MSG="";EXPORT="";render();scrollTo(0,0);return}
+  if(t.dataset.del){if(await ask("Supprimer ce match ?")){m.matches=m.matches.filter(x=>x.id!==t.dataset.del);m.t=Date.now();save();render()}return}
+  if(t.dataset.ndel){const n=(S.ag.notes[SEL]||[]).find(x=>x.id===t.dataset.ndel);if(n&&await ask("Supprimer cette note ?")){n.del=true;save();render()}return}
+  if(a==="mode"){S.mode=t.dataset.m;save();render()}
+  if(a==="sw"){UNLOCK=false;S.mode=null;SEL=null;EDIT=null;CODE="";MSG="";EXPORT="";save();render()}
+  if(a==="back"){SEL=null;render()}
+  if(a==="closecode"){CODE="";render()}
+  if(a==="copycode"){t.textContent=await copy(CODE)?"Copié ✓":"Sélectionnez le texte et copiez-le";}
+  if(a==="prof"){const n=$("#pn").value.trim();if(!n)return $("#pn").focus();m.name=n;m.team=$("#pt").value.trim();Object.assign(m,cleanProf({poste:$("#pp").value,birth:$("#pb").value}));m.t=Date.now();save();render()}
+  if(a==="unlock"){if(await hpin($("#pin").value)===S.pin){UNLOCK=true;render()}else{$("#pinerr").textContent="Code incorrect.";$("#pin").value="";$("#pin").focus()}}
+  if(a==="setpin"){const v=$("#np").value;if(!/^\d{4,8}$/.test(v)){PINMSG="Le code doit contenir 4 à 8 chiffres.";return render()}S.pin=await hpin(v);UNLOCK=true;PINMSG="Code PIN enregistré.";save();render()}
+  if(a==="rmpin"){if(await ask("Retirer le code PIN de l’espace agence ?")){S.pin="";PINMSG="Code PIN retiré.";save();render()}}
+  if(a==="lock"){UNLOCK=false;PINMSG="";SEL=null;render()}
+  if(a==="restore"){const c=($("#rc").value.match(CODERX)||[])[0];
+    try{const o=await dec(c);if(!o.id||!o.name||!Array.isArray(o.matches))throw 0;S.me={id:String(o.id).replace(/\W/g,"").slice(0,24),name:String(o.name).slice(0,60),team:String(o.team||"").slice(0,20),...cleanProf(o),matches:o.matches.map(clean),t:+o.t||Date.now(),sentT:+o.t||0};save();render()}
+    catch(e){$("#rerr").textContent="Code illisible. Vérifiez qu’il est complet."}}
+  if(a==="send")await send();
+  if(a==="add"){
+    const role=$("#mr").value,has=role==="Titulaire"||role==="Remplaçant",min=has?parseInt($("#mm").value,10):0,fe=document.querySelector("input[name=mf]:checked"),er=$("#err");
+    if(has&&(isNaN(min)||min<0||min>130)){er.textContent="Indiquez les minutes jouées (0 à 130).";return}
+    if(!fe){er.textContent="Choisissez votre ressenti.";return}
+    const fa=document.querySelector("input[name=mfa]:checked"),inj=+$("#mi").value||0;
+    const rec={id:EDIT||uid(7),date:$("#md").value||today(),opp:$("#mo").value.trim().slice(0,60),role,min,feel:+fe.value,fat:fa?+fa.value:0,inj,zone:inj?$("#mz").value:"",note:$("#mn").value.trim()};
+    const i=m.matches.findIndex(x=>x.id===EDIT);if(EDIT&&i>=0)m.matches[i]=rec;else m.matches.push(rec);
+    EDIT=null;m.t=Date.now();save();render()}
+  if(a==="canceledit"){EDIT=null;render()}
+  if(a==="install"&&INST){INST.prompt();try{await INST.userChoice}catch(e){}INST=null;render()}
+  if(a==="applink"){t.textContent=await copy(location.origin+location.pathname)?"Lien copié ✓":location.origin+location.pathname}
+  if(a==="csv"){const rows=[["Joueur","Équipe","Poste","Âge","Responsable","Club","Date","Adversaire","Rôle","Minutes","Ressenti","Fatigue","Douleur/blessure","Zone","Commentaire"]];
+    Object.entries(S.ag.players).forEach(([id,p])=>p.matches.forEach(x=>rows.push([p.name,p.team,p.poste||"",age(p.birth)??"",asg(id),(S.ag.info[id]||{}).club||"",x.date,x.opp,x.role,x.min,x.feel,x.fat?FAT[x.fat]:"",INJ[x.inj||0],x.zone||"",x.note])));
+    const csv="﻿"+rows.map(r=>r.map(v=>{v=String(v==null?"":v);return/[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";")).join("\r\n");
+    try{const l=document.createElement("a");l.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));l.download="matchs-"+today()+".csv";document.body.appendChild(l);l.click();l.remove()}catch(e){MSG="Export CSV impossible dans ce navigateur.";render()}}
+  if(a==="rmplayer"&&SEL){const p=S.ag.players[SEL];if(p&&await ask("Retirer "+p.name+" de la base ? (ses notes sont conservées)")){delete S.ag.players[SEL];SEL=null;save();render()}}
+  if(a==="imp"){await importCodes($("#paste").value);EXPORT="";render()}
+  if(a==="exp"){const ok=await download("base-agence-"+today()+".json",JSON.stringify(S.ag));if(!ok){EXPORT=JSON.stringify(S.ag);MSG="Téléchargement impossible ici : copiez le texte de la base ci-dessous."}else{S.lastExp=Date.now();save()}render()}
+  if(a==="expcopy"){EXPORT=JSON.stringify(S.ag);if(await copy(EXPORT)){MSG="Base copiée. Collez-la dans un message à vous-même ou à votre associé.";S.lastExp=Date.now();save()}else MSG="Copiez le texte de la base ci-dessous (et gardez-le en lieu sûr).";render()}
+  if(a==="note"){const v=$("#nt").value.trim();if(!v)return;(S.ag.notes[SEL]=S.ag.notes[SEL]||[]).push({id:uid(7),at:new Date().toISOString(),by:S.my,text:v});save();render()}
+});
+document.addEventListener("change",async ev=>{const i=ev.target;
+  if(i.id==="mr"){const has=i.value==="Titulaire"||i.value==="Remplaçant";$("#mml").style.opacity=has?1:.4;$("#mm").disabled=!has}
+  if(i.id==="my"){S.my=i.value.trim();save();render()}
+  if(i.id==="mine"){MINE=i.checked;render()}
+  if(i.id==="sort"){SORT=i.value;render()}
+  if(i.id==="alonly"){ALERTONLY=i.checked;render()}
+  if(i.id==="asg"){S.ag.assign[SEL]={v:i.value.trim(),t:Date.now()};save()}
+  if(i.dataset.info&&SEL){const o=S.ag.info[SEL]={...(S.ag.info[SEL]||{})};o[i.dataset.info]=i.value.trim().slice(0,60);o.t=Date.now();save()}
+  if(i.id==="mi"){const on=+i.value>0;$("#mzl").style.opacity=on?1:.4;$("#mz").disabled=!on}
+  if(i.id==="fi"&&i.files[0]){try{const o=JSON.parse(await i.files[0].text());mergeAg(o.players?o:(o.ag||{}));MSG="Base importée et fusionnée."}catch(e){MSG="Fichier illisible."}render()}
+});
+document.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&ev.target.id==="pin")$("[data-act=unlock]").click()});
+document.addEventListener("input",ev=>{if(ev.target.id==="q"){Q=ev.target.value;render();const q=$("#q");q.focus();q.setSelectionRange(Q.length,Q.length)}});
+function render(){$("#sw").hidden=!S.mode;$("#who").textContent=S.mode==="player"?"· mon suivi":S.mode==="agency"?"· agence":"";
+  app.innerHTML=!S.mode?modeView():S.mode==="player"?playerView():(S.pin&&!UNLOCK)?lockView():agencyView();if(S.mode==="agency"&&S.pin&&!UNLOCK){const p=$("#pin");p&&p.focus()}}
+render();
+</script>
+</body>
+</html>
