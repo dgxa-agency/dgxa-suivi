@@ -190,9 +190,12 @@ const installCard=()=>standalone?"":INST?`<div class="card row" style="align-ite
 /* ================= DÉMARRAGE ================= */
 const H=new URLSearchParams(location.hash.slice(1));
 let AUTHFLOW=H.get("type")==="invite"||H.get("type")==="recovery"?"setpw":null;
+const AUTHERR=H.get("error")||H.get("error_code")?"Ce lien a expiré ou a déjà été utilisé. Entrez votre email ci-dessous puis cliquez sur « Mot de passe oublié » pour recevoir un nouveau lien.":"";
+if(AUTHERR){L.mode="agency";history.replaceState(null,"",location.pathname)}
 const FROMLINK=!!H.get("j");if(FROMLINK){L.code=normCode(H.get("j"));L.cache=null;save();history.replaceState(null,"",location.pathname)}
 async function boot(){
-  if(AUTHFLOW){MODE="agency";if(sb)await sb.auth.getSession();return render()}
+  if(AUTHERR){MODE="login";V.lerr=AUTHERR;return render()}
+  if(AUTHFLOW){MODE="agency";const s=sb&&await sb.auth.getSession();if(!(s&&s.data&&s.data.session)){AUTHFLOW=null;MODE="login";V.lerr="Ce lien a expiré ou a déjà été utilisé. Entrez votre email ci-dessous puis cliquez sur « Mot de passe oublié ».";history.replaceState(null,"",location.pathname)}return render()}
   if(FROMLINK||(L.code&&!sb)){MODE="player";render();return playerSync(true)}
   if(sb){const {data}=await sb.auth.getSession();if(data&&data.session){MODE="agency";return agencyLoad()}}
   if(L.code){MODE="player";render();return playerSync(true)}
@@ -263,7 +266,7 @@ let DB={players:[],entries:[],notes:[]},LOADED=false;
 function loginView(){return`<div class="center card"><h2 style="margin-bottom:12px">Espace agence</h2>
   <label class="f">Email<input id="le" type="email" autocomplete="username" value="${esc(L.email||"")}"></label>
   <label class="f" style="margin-top:10px">Mot de passe<input id="lp" type="password" autocomplete="current-password"></label>
-  <p id="lerr" class="sm" style="font-weight:600;min-height:18px;margin:8px 0"></p><button class="b wide" data-act="login">Se connecter</button>
+  <p id="lerr" class="sm" style="font-weight:600;min-height:18px;margin:8px 0">${esc(V.lerr||"")}</p><button class="b wide" data-act="login">Se connecter</button>
   <div class="row" style="justify-content:space-between;margin-top:14px"><button class="g sm" data-act="forgot">Mot de passe oublié</button><button class="g sm" data-act="home">Je suis joueur</button></div></div>`}
 function setPwView(){return`<div class="center card"><h2 style="margin-bottom:6px">Choisissez votre mot de passe</h2><p class="mut sm">Au moins 8 caractères.</p>
   <label class="f">Nouveau mot de passe<input id="np1" type="password" autocomplete="new-password"></label><label class="f" style="margin-top:10px">Confirmer<input id="np2" type="password" autocomplete="new-password"></label>
