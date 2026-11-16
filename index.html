@@ -187,15 +187,16 @@ function barChart(E){
   const v=W.map(k=>by[k]||0),mx=Math.max(90,...v),bw=70;
   return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par semaine">${v.map((x,i)=>{const h=x/mx*96;return`<rect x="${i*bw+12}" y="${116-h}" width="${bw-24}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${i*bw+bw/2}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text><text x="${i*bw+bw/2}" y="134" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(W[i])}</text>`}).join("")}</svg>`}
 function lineChart(E){
-  const L=E.filter(x=>x.form||x.moral).slice(0,12).reverse();if(L.length<2)return'<p class="mut sm">Pas encore assez de saisies pour afficher l’évolution.</p>';
+  const B={};E.filter(x=>(x.form||x.moral)&&x.date<=today()).forEach(x=>{const d=B[x.date]||(B[x.date]={date:x.date,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
+  const L=Object.values(B).sort((a,b)=>a.date<b.date?-1:1).slice(-12).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(L.length<2)return'<p class="mut sm">Pas encore assez de saisies pour afficher l’évolution.</p>';
   const w=560,h=150,px=i=>36+i*(w-56)/(L.length-1),py=v=>120-(v-1)*25;
   const path=k=>{let d="",on=false;L.forEach((x,i)=>{if(x[k]){d+=(on?"L":"M")+px(i)+" "+py(x[k]);on=true}});return d};
-  const dots=(k,f)=>L.map((x,i)=>x[k]?`<circle cx="${px(i)}" cy="${py(x[k])}" r="4" fill="${f?"currentColor":"var(--sf)"}" stroke="currentColor" stroke-width="2"/>`:"").join("");
+  const dots=k=>L.map((x,i)=>{if(!x[k])return"";const X=px(i),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4.5" fill="currentColor"/>`:`<path d="M${X} ${Y-8}L${X+8} ${Y}L${X} ${Y+8}L${X-8} ${Y}Z" fill="none" stroke="currentColor" stroke-width="2"/>`}).join("");
   return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral">
   ${[1,2,3,4,5].map(v=>`<line x1="24" x2="${w-14}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity=".1"/><text x="2" y="${py(v)+5}" font-size="13">${GE.form[v]}</text>`).join("")}
   <path d="${path("form")}" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="${path("moral")}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5"/>
-  ${dots("form",1)}${dots("moral",0)}${L.map((x,i)=>i%Math.ceil(L.length/6)===0||i===L.length-1?`<text x="${px(i)}" y="${h-4}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(x.date)}</text>`:"").join("")}</svg>
-  <p class="sm mut" style="margin:4px 0 0">━━ Forme physique &nbsp;&nbsp; ╍╍ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top)</p>`}
+  ${dots("form")}${dots("moral")}${L.map((x,i)=>i%Math.ceil(L.length/6)===0||i===L.length-1?`<text x="${px(i)}" y="${h-4}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(x.date)}</text>`:"").join("")}</svg>
+  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · moyenne par jour</p>`}
 
 /* ================= SUPABASE ================= */
 let sb=null;try{if(window.supabase&&!SB_URL.startsWith("__"))sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,autoRefreshToken:true}})}catch(e){console.error(e)}
@@ -420,6 +421,7 @@ document.addEventListener("click",async ev=>{
   case"pself":{const self={poste:$("#sp").value,birth:$("#sb").value,pied:$("#spd").value};L.cache.self=self;L.queue.push({op:"self",self,consent:true});save();toast("Profil enregistré");return playerSync(false)}
   case"psave":{const f=readForm(),er=$("#ferr");
     if(!f.date){er.textContent="Indique la date.";return}
+    if(f.date>today()){er.textContent="La date ne peut pas être dans le futur.";return}
     const hasMin=f.kind==="entrainement"||f.role==="Titulaire"||f.role==="Remplaçant";
     if(f.kind==="match"&&hasMin&&(f.min==null||isNaN(f.min)||f.min<0||f.min>200)){er.textContent="Indique tes minutes jouées.";return}
     if(f.kind==="match"&&!f.feel){er.textContent="Choisis ton ressenti sur le match.";return}
