@@ -181,22 +181,26 @@ function alertsFor(p,E){
 const tags=A=>A.map(a=>`<span class="tag ${a[0]==="hi"?"hi":""}">${esc(a[1])}</span>`).join("")||'<span class="tag ok">👍 RAS</span>';
 
 /* ================= GRAPHIQUES ================= */
+const NW=12,CX0=36,CX1=548,CW=(CX1-CX0)/NW;
+const chartWeeks=()=>{const W=[];for(let i=NW-1;i>=0;i--)W.push(new Date(Date.parse(wk(today()))-i*7*864e5).toISOString().slice(0,10));return W};
+const weekTicks=(W,y)=>W.map((k,i)=>i%2===1||i===NW-1?"":`<text x="${CX0+i*CW+CW/2}" y="${y}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(k)}</text>`).join("");
 function barChart(E){
-  const W=[];for(let i=7;i>=0;i--)W.push(new Date(Date.parse(wk(today()))-i*7*864e5).toISOString().slice(0,10));
-  const by={};E.filter(x=>x.kind!=="entrainement").forEach(x=>{const k=wk(x.date);by[k]=(by[k]||0)+x.min});
-  const v=W.map(k=>by[k]||0),mx=Math.max(90,...v),bw=70;
-  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par semaine">${v.map((x,i)=>{const h=x/mx*96;return`<rect x="${i*bw+12}" y="${116-h}" width="${bw-24}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${i*bw+bw/2}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text><text x="${i*bw+bw/2}" y="134" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(W[i])}</text>`}).join("")}</svg>`}
+  const W=chartWeeks(),by={};E.filter(x=>x.kind!=="entrainement").forEach(x=>{const k=wk(x.date);by[k]=(by[k]||0)+x.min});
+  const v=W.map(k=>by[k]||0),mx=Math.max(90,...v);
+  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par semaine, 12 dernières semaines">${v.map((x,i)=>{const h=x/mx*96,cx=CX0+i*CW+CW/2;return`<rect x="${cx-CW/2+6}" y="${116-h}" width="${CW-12}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${cx}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text>`}).join("")}${weekTicks(W,134)}</svg>
+  <p class="sm mut" style="margin:4px 0 0">Matchs uniquement · 12 dernières semaines</p>`}
 function lineChart(E){
-  const B={};E.filter(x=>(x.form||x.moral)&&x.date<=today()).forEach(x=>{const d=B[x.date]||(B[x.date]={date:x.date,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
-  const L=Object.values(B).sort((a,b)=>a.date<b.date?-1:1).slice(-12).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(L.length<2)return'<p class="mut sm">Pas encore assez de saisies pour afficher l’évolution.</p>';
-  const w=560,h=150,px=i=>36+i*(w-56)/(L.length-1),py=v=>120-(v-1)*25;
-  const path=k=>{let d="",on=false;L.forEach((x,i)=>{if(x[k]){d+=(on?"L":"M")+px(i)+" "+py(x[k]);on=true}});return d};
-  const dots=k=>L.map((x,i)=>{if(!x[k])return"";const X=px(i),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4.5" fill="currentColor"/>`:`<path d="M${X} ${Y-8}L${X+8} ${Y}L${X} ${Y+8}L${X-8} ${Y}Z" fill="none" stroke="currentColor" stroke-width="2"/>`}).join("");
-  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral">
-  ${[1,2,3,4,5].map(v=>`<line x1="24" x2="${w-14}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity=".1"/><text x="2" y="${py(v)+5}" font-size="13">${GE.form[v]}</text>`).join("")}
+  const W=chartWeeks(),t0=Date.parse(W[0]),span=NW*7*864e5;
+  const B={};E.filter(x=>(x.form||x.moral)&&x.date<=today()&&x.date>=W[0]).forEach(x=>{const d=B[x.date]||(B[x.date]={date:x.date,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
+  const L=Object.values(B).sort((a,b)=>a.date<b.date?-1:1).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(!L.length)return'<p class="mut sm">Aucune saisie sur les 12 dernières semaines.</p>';
+  const w=560,h=150,px=d=>CX0+((Date.parse(d)-t0+432e5)/span)*(CX1-CX0),py=v=>120-(v-1)*25;
+  const path=k=>{let d="",on=false;L.forEach(x=>{if(x[k]){d+=(on?"L":"M")+px(x.date)+" "+py(x[k]);on=true}});return d};
+  const dots=k=>L.map(x=>{if(!x[k])return"";const X=px(x.date),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4.5" fill="currentColor"/>`:`<path d="M${X} ${Y-8}L${X+8} ${Y}L${X} ${Y+8}L${X-8} ${Y}Z" fill="none" stroke="currentColor" stroke-width="2"/>`}).join("");
+  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral, 12 dernières semaines">
+  ${[1,2,3,4,5].map(v=>`<line x1="24" x2="${w-12}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity=".1"/><text x="2" y="${py(v)+5}" font-size="13">${GE.form[v]}</text>`).join("")}
   <path d="${path("form")}" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="${path("moral")}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5"/>
-  ${dots("form")}${dots("moral")}${L.map((x,i)=>i%Math.ceil(L.length/6)===0||i===L.length-1?`<text x="${px(i)}" y="${h-4}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(x.date)}</text>`:"").join("")}</svg>
-  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · moyenne par jour</p>`}
+  ${dots("form")}${dots("moral")}${weekTicks(W,h-4)}</svg>
+  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · 12 dernières semaines</p>`}
 
 /* ================= SUPABASE ================= */
 let sb=null;try{if(window.supabase&&!SB_URL.startsWith("__"))sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,autoRefreshToken:true}})}catch(e){console.error(e)}
