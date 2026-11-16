@@ -181,26 +181,32 @@ function alertsFor(p,E){
 const tags=A=>A.map(a=>`<span class="tag ${a[0]==="hi"?"hi":""}">${esc(a[1])}</span>`).join("")||'<span class="tag ok">👍 RAS</span>';
 
 /* ================= GRAPHIQUES ================= */
-const NW=12,CX0=36,CX1=548,CW=(CX1-CX0)/NW;
-const chartWeeks=()=>{const W=[];for(let i=NW-1;i>=0;i--)W.push(new Date(Date.parse(wk(today()))-i*7*864e5).toISOString().slice(0,10));return W};
-const weekTicks=(W,y)=>W.map((k,i)=>i%2===1||i===NW-1?"":`<text x="${CX0+i*CW+CW/2}" y="${y}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${fmt(k)}</text>`).join("");
-function barChart(E){
-  const W=chartWeeks(),by={};E.filter(x=>x.kind!=="entrainement").forEach(x=>{const k=wk(x.date);by[k]=(by[k]||0)+x.min});
-  const v=W.map(k=>by[k]||0),mx=Math.max(90,...v);
-  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par semaine, 12 dernières semaines">${v.map((x,i)=>{const h=x/mx*96,cx=CX0+i*CW+CW/2;return`<rect x="${cx-CW/2+6}" y="${116-h}" width="${CW-12}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${cx}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text>`}).join("")}${weekTicks(W,134)}</svg>
-  <p class="sm mut" style="margin:4px 0 0">Matchs uniquement · 12 dernières semaines</p>`}
-function lineChart(E){
-  const W=chartWeeks(),t0=Date.parse(W[0]),span=NW*7*864e5;
-  const B={};E.filter(x=>(x.form||x.moral)&&x.date<=today()&&x.date>=W[0]).forEach(x=>{const d=B[x.date]||(B[x.date]={date:x.date,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
-  const L=Object.values(B).sort((a,b)=>a.date<b.date?-1:1).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(!L.length)return'<p class="mut sm">Aucune saisie sur les 12 dernières semaines.</p>';
-  const w=560,h=150,px=d=>CX0+((Date.parse(d)-t0+432e5)/span)*(CX1-CX0),py=v=>120-(v-1)*25;
+const CX0=36,CX1=548,DAY=864e5;
+const iso10=t=>new Date(t).toISOString().slice(0,10);
+const mKey=d=>d.slice(0,7)+"-01",sKey=d=>(+d.slice(5,7)>=7?+d.slice(0,4):+d.slice(0,4)-1)+"-07-01";
+const addM=(d,n)=>{const x=new Date(d+"T00:00:00Z");x.setUTCMonth(x.getUTCMonth()+n);return iso10(x)};
+const PER={week:{n:12,lbl:"semaine",title:"12 dernières semaines",key:wk,next:d=>iso10(Date.parse(d)+7*DAY),prev:(d,i)=>iso10(Date.parse(d)-i*7*DAY),tick:d=>fmt(d),every:2,sub:d=>d,subMid:DAY/2,subLbl:"moyenne par jour"},
+ month:{n:12,lbl:"mois",title:"12 derniers mois",key:mKey,next:d=>addM(d,1),prev:(d,i)=>addM(d,-i),tick:d=>new Date(d+"T00:00:00Z").toLocaleDateString("fr-FR",{month:"short",year:"2-digit",timeZone:"UTC"}),every:2,sub:mKey,subMid:15*DAY,subLbl:"moyenne par mois"},
+ season:{n:5,lbl:"saison",title:"5 dernières saisons",key:sKey,next:d=>addM(d,12),prev:(d,i)=>addM(d,-12*i),tick:d=>d.slice(2,4)+"-"+String(+d.slice(2,4)+1).padStart(2,"0"),every:1,sub:sKey,subMid:182*DAY,subLbl:"moyenne par saison"}};
+function buckets(p){const P=PER[p],cur=P.key(today()),B=[];for(let i=P.n-1;i>=0;i--){const s=P.prev(cur,i);B.push({s,e:P.next(s)})}return B}
+const ticks=(p,B,y)=>{const P=PER[p],cw=(CX1-CX0)/B.length;return B.map((b,i)=>(B.length-1-i)%P.every?"":`<text x="${CX0+i*cw+cw/2}" y="${y}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${P.tick(b.s)}</text>`).join("")};
+function barChart(E,p="week"){
+  const B=buckets(p),cw=(CX1-CX0)/B.length,M=E.filter(x=>x.kind!=="entrainement");
+  const v=B.map(b=>M.filter(x=>x.date>=b.s&&x.date<b.e).reduce((s,x)=>s+x.min,0)),mx=Math.max(90,...v);
+  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par ${PER[p].lbl}">${v.map((x,i)=>{const h=x/mx*96,cx=CX0+i*cw+cw/2;return`<rect x="${cx-cw/2+Math.min(6,cw*.15)}" y="${116-h}" width="${cw-2*Math.min(6,cw*.15)}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${cx}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text>`}).join("")}${ticks(p,B,134)}</svg>
+  <p class="sm mut" style="margin:4px 0 0">Matchs uniquement · ${PER[p].title}</p>`}
+function lineChart(E,p="week"){
+  const P=PER[p],B=buckets(p),t0=Date.parse(B[0].s),t1=Date.parse(B[B.length-1].e);
+  const G={};E.filter(x=>(x.form||x.moral)&&x.date<=today()&&x.date>=B[0].s).forEach(x=>{const k=P.sub(x.date),d=G[k]||(G[k]={date:k,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
+  const L=Object.values(G).sort((a,b)=>a.date<b.date?-1:1).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(!L.length)return`<p class="mut sm">Aucune saisie sur les ${P.title}.</p>`;
+  const w=560,h=150,px=d=>CX0+((Date.parse(d)+P.subMid-t0)/(t1-t0))*(CX1-CX0),py=v=>120-(v-1)*25;
   const path=k=>{let d="",on=false;L.forEach(x=>{if(x[k]){d+=(on?"L":"M")+px(x.date)+" "+py(x[k]);on=true}});return d};
   const dots=k=>L.map(x=>{if(!x[k])return"";const X=px(x.date),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4.5" fill="currentColor"/>`:`<path d="M${X} ${Y-8}L${X+8} ${Y}L${X} ${Y+8}L${X-8} ${Y}Z" fill="none" stroke="currentColor" stroke-width="2"/>`}).join("");
-  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral, 12 dernières semaines">
+  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral, ${P.title}">
   ${[1,2,3,4,5].map(v=>`<line x1="24" x2="${w-12}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity=".1"/><text x="2" y="${py(v)+5}" font-size="13">${GE.form[v]}</text>`).join("")}
   <path d="${path("form")}" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="${path("moral")}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5"/>
-  ${dots("form")}${dots("moral")}${weekTicks(W,h-4)}</svg>
-  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · 12 dernières semaines</p>`}
+  ${dots("form")}${dots("moral")}${ticks(p,B,h-4)}</svg>
+  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · ${P.subLbl} · ${P.title}</p>`}
 
 /* ================= SUPABASE ================= */
 let sb=null;try{if(window.supabase&&!SB_URL.startsWith("__"))sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,autoRefreshToken:true}})}catch(e){console.error(e)}
@@ -361,8 +367,9 @@ function playerDetail(p){
   let body="";
   if(tab==="resume")body=`<div class="kpis"><div class="kpi"><i>⏱️</i><b>${m7}</b><span>minutes (7 j)</span></div><div class="kpi"><i>🗓️</i><b>${m28.reduce((s,x)=>s+x.min,0)}</b><span>minutes (4 sem.)</span></div><div class="kpi"><i>🏟️</i><b>${MS.length}</b><span>match${MS.length>1?"s":""} (saison)</span></div><div class="kpi"><i>⚽</i><b>${gS}</b><span>buts (saison)</span></div><div class="kpi"><i>🅰️</i><b>${aS}</b><span>passes déc. (saison)</span></div><div class="kpi"><i>⏳</i><b>${minS}</b><span>minutes (saison)</span></div><div class="kpi"><i>${(x=>x?GE.form[Math.round(x)]:"💪")(avg(E28.map(x=>x.form)))}</i><b>${f1(avg(E28.map(x=>x.form)))}</b><span>forme moy. /5</span></div><div class="kpi"><i>${(x=>x?GE.moral[Math.round(x)]:"😊")(avg(E28.map(x=>x.moral)))}</i><b>${f1(avg(E28.map(x=>x.moral)))}</b><span>moral moy. /5</span></div></div>
    <div class="card"><h3 style="margin-bottom:8px">🕘 Dernière saisie</h3>${E[0]?`<b>${fmt(E[0].date)} · ${kindLbl(E[0])}</b> <span class="mut sm">${E[0].min?E[0].min+" min":""}</span><div class="gl" style="margin:8px 0">${E[0].kind!=="entrainement"?gaugeRow("feel",E[0].feel):""}${gaugeRow("form",E[0].form)}${gaugeRow("moral",E[0].moral)}</div>${statLine(E[0])}${injTag(E[0])}${E[0].note?`<p style="margin:6px 0 0">« ${esc(E[0].note)} »</p>`:""}${coachLine(E[0])}`:'<p class="mut">Rien pour l’instant.</p>'}</div>
-   <div class="card"><h3 style="margin-bottom:6px">📉 Forme et moral</h3>${lineChart(E)}</div>
-   <div class="card"><h3>⏱️ Minutes jouées par semaine</h3>${barChart(E)}</div>`;
+   <div class="seg" role="group" aria-label="Période des graphiques" style="max-width:420px">${[["week","Semaines"],["month","Mois"],["season","Saisons"]].map(([k,l])=>`<button data-per="${k}" class="${(V.per||"week")===k?"on":""}">${l}</button>`).join("")}</div>
+   <div class="card"><h3 style="margin-bottom:6px">📉 Forme et moral</h3>${lineChart(E,V.per||"week")}</div>
+   <div class="card"><h3>⏱️ Minutes jouées par ${PER[V.per||"week"].lbl}</h3>${barChart(E,V.per||"week")}</div>`;
   if(tab==="fiche")body=`${FICHE.map(([t,F],i)=>`<div class="card"><h3 style="margin-bottom:12px">${t}</h3>${i===0?`<div class="row" style="align-items:center;margin-bottom:14px">${avatar(p,1)}<label class="g" style="cursor:pointer">Changer la photo<input type="file" id="photo" accept="image/*" hidden></label>${(p.info||{}).photo?'<button class="g sm" data-act="rmphoto">Retirer</button>':""}</div>`:""}
      <div class="fgrid">${F.map(fField).join("")}</div>${i===3?`<div style="margin-top:14px"><b>Historique des blessures signalées</b>${inj.length?inj.map(x=>`<div class="sm" style="margin-top:6px">${fmt(x.date)} ${new Date(x.date).getFullYear()} · ${injTag(x)}${x.note?" "+esc(x.note):""}</div>`).join(""):'<p class="mut sm" style="margin:4px 0 0">Aucune blessure signalée.</p>'}</div>`:""}</div>`).join("")}
      <p class="sm mut">Accord parental confirmé par le joueur : <b>${p.consent_at?fmtY(p.consent_at):"pas encore"}</b> · Dernière ouverture de l’appli : <b>${p.last_seen?ago(p.last_seen):"jamais"}</b></p>
@@ -401,6 +408,7 @@ document.addEventListener("click",async ev=>{
   const t=ev.target.closest("button,[data-pid]");if(!t||t.closest("#dlg"))return;const a=t.dataset.act,d=t.dataset;
   // jauges & segments (joueur)
   if(d.gv){const g=t.closest(".gin"),k=g.dataset.g,v=+d.gv;$("#g-"+k).value=v;g.querySelector(".dots").classList.add("has");g.querySelectorAll("button").forEach(b=>{const on=+b.dataset.gv===v;b.classList.toggle("on",on);b.setAttribute("aria-checked",on)});$("#gw-"+k).textContent=GW[k][v];if(navigator.vibrate)try{navigator.vibrate(8)}catch(e){}return}
+  if(d.per){V.per=d.per;return render()}
   if(d.st){const el=$("#st-"+d.st);el.textContent=Math.max(0,Math.min(20,(+el.textContent||0)+(+d.d)));if(navigator.vibrate)try{navigator.vibrate(8)}catch(e){}return}
   if(d.kind){V.draft=readForm();V.draft.kind=d.kind;if(d.kind==="match"&&!V.draft.role)V.draft.role="Titulaire";return render()}
   if(d.inj!=null){V.draft=readForm();V.draft.inj=+d.inj;if(!V.draft.inj)V.draft.zone="";return render()}
