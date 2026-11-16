@@ -1,0 +1,16 @@
+# Garde la base Supabase active (le plan gratuit se met en pause après ~1 semaine sans activité)
+name: Garder Supabase actif
+on:
+  schedule:
+    - cron: '23 7 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contacter la base
+        run: |
+          curl -fsS -X POST "https://yalbwkkdsznvlsrlelxc.supabase.co/rest/v1/rpc/player_get" \
+            -H "apikey: sb_publishable_qnZQYhe-KUisPy324Ha_DA_kkt_MJ5C" \
+            -H "Content-Type: application/json" \
+            -d '{"p_token":"KEEPALIVE"}'
