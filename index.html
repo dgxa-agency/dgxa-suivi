@@ -115,6 +115,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .c-name{display:flex;gap:10px;align-items:center;min-width:0}.c-name .av{width:40px;height:40px;font-size:16px}.c-name b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-name>div:last-child{min-width:0}.c-name .sm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chev{color:var(--mut);font-size:18px}
+.gtab{overflow-x:auto}.gh,.gr{display:grid;grid-template-columns:minmax(110px,1.4fr) .7fr .8fr .9fr 1fr 1fr .9fr;gap:10px;align-items:center;padding:9px 4px;border-top:1px solid var(--line);min-width:640px}
+.gh{border-top:0;font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.4px}.gr b{font:700 17px "Barlow Condensed",sans-serif}
+.lrow{display:flex;align-items:center;gap:10px;width:100%;padding:9px 4px;border:0;border-top:1px solid var(--line);background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lrow:first-of-type{border-top:0}.lrow:hover{background:var(--bg)}.lrow .av{width:34px;height:34px;font-size:13px;flex:none}
+.rk{width:18px;font:700 18px "Barlow Condensed",sans-serif;color:var(--mut)}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.g3>.card{margin:0}
+@media (max-width:860px){.g3{grid-template-columns:1fr;gap:0}.g3>.card{margin-bottom:14px}}
 .mstat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.mstat b{display:block;font:700 22px "Barlow Condensed",sans-serif}.mstat span{font-size:12px;color:var(--mut)}
 @media (max-width:520px){.mstat{grid-template-columns:repeat(2,1fr)}}
 .pgrp{display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;border:0;border-top:1px solid var(--line);background:var(--ink);color:var(--bg);font:inherit;text-align:left;cursor:pointer}
@@ -417,13 +422,14 @@ function agencyView(){
   const sc=x=>x.A.reduce((n,a)=>n+(a[0]==="hi"?10:1),0);
   P.sort((a,b)=>V.sort==="name"?a.p.name.localeCompare(b.p.name):V.sort==="last"?((a.E[0]||{}).date<(b.E[0]||{}).date?1:-1):sc(b)-sc(a)||a.p.name.localeCompare(b.p.name));
   return`<div class="kpis"><div class="kpi"><i>👥</i><b>${DB.players.filter(p=>!p.archived).length}</b><span>joueurs suivis</span></div><div class="kpi"><i>🙋</i><b>${(DB.requests||[]).filter(q=>q.status==="open"&&DB.players.some(p=>p.id===q.player_id&&!p.archived)).length}</b><span>demande(s) de RDV</span></div><div class="kpi"><i>🚨</i><b>${nHi}</b><span>alerte(s) prioritaire(s)</span></div><div class="kpi"><i>📈</i><b>${nWeek}</b><span>actifs cette semaine</span></div></div>
-  <div class="sp"><h2>${V.arch?"Joueurs archivés":"Joueurs"}</h2><div class="row"><button class="g" data-act="settings">Réglages</button><button class="b" data-act="addp">+ Ajouter un joueur</button></div></div>
+  <div class="seg" role="tablist" style="max-width:380px;margin-bottom:14px"><button data-act="gv0" class="${V.gv?"":"on"}">👥 Joueurs</button><button data-act="gv1" class="${V.gv?"on":""}">📊 Vue globale</button></div>
+  ${V.gv?globalView():`<div class="sp"><h2>${V.arch?"Joueurs archivés":"Joueurs"}</h2><div class="row"><button class="g" data-act="settings">Réglages</button><button class="b" data-act="addp">+ Ajouter un joueur</button></div></div>
   <div class="row" style="margin-bottom:14px"><label class="f grow" style="min-width:180px">Rechercher<input id="q" type="search" value="${esc(V.q||"")}" placeholder="Nom, club, poste, responsable"></label>
    <label class="f">Afficher<select id="flt"><option value="">Tous</option><option value="alert"${V.f==="alert"?" selected":""}>Avec alerte</option><option value="mine"${V.f==="mine"?" selected":""}>Mes joueurs</option></select></label>
    <label class="f">Trier<select id="srt"><option value="alert">Alertes d’abord</option><option value="last"${V.sort==="last"?" selected":""}>Dernière saisie</option><option value="name"${V.sort==="name"?" selected":""}>Nom</option></select></label></div>
   ${P.length?`<div class="ptable" role="list"><div class="phead" aria-hidden="true"><span>Joueur</span><span>Dernier match</span><span>Min.</span><span title="Ressenti moyen sur la saison">Ressenti</span><span>Forme</span><span>Moral</span><span>Saison</span><span>Alertes</span><span></span></div>${catGroups(P)}</div>`
    :`<div class="card empty">${DB.players.length?"Aucun joueur ne correspond.":"Aucun joueur pour le moment.<br><br><button class='b' data-act='addp'>+ Ajouter le premier joueur</button>"}</div>`}
-  <div class="row" style="margin-top:16px;justify-content:space-between"><button class="g sm" data-act="toggleArch">${V.arch?"← Joueurs actifs":"Voir les joueurs archivés"}</button><button class="g sm" data-act="csv">Exporter les saisies (Excel/CSV)</button></div>`}
+  <div class="row" style="margin-top:16px;justify-content:space-between"><button class="g sm" data-act="toggleArch">${V.arch?"← Joueurs actifs":"Voir les joueurs archivés"}</button><button class="g sm" data-act="csv">Exporter les saisies (Excel/CSV)</button></div>`}`}
 const FICHE=[
  ["Identité et sport",[["name","Nom complet","t"],["tel","Téléphone du joueur (WhatsApp)","tel","Ex. 0470 12 34 56 ou 06 12 34 56 78"],["birth","Date de naissance","date"],["nationalite","Nationalité","t"],["poste","Poste","sel",POSTES],["pied","Pied fort","sel",PIEDS],["taille","Taille (cm)","num"],["poids","Poids (kg)","num"],["club","Club actuel","t"],["categorie","Catégorie","t","Ex. U17"],["numero","Numéro","t"]]],
  ["Contrat et carrière",[["statut","Statut / contrat","t","Ex. Contrat pro, espoir, aspirant, amateur…"],["debut_contrat","Début de contrat","date"],["fin_contrat","Fin de contrat","date"],["resp","Agent responsable","t"],["clubs","Clubs précédents","area"],["selections","Sélections (nationales, régionales)","area"]]],
@@ -464,6 +470,26 @@ const catOrd=c=>{if(!c)return 1e4;const m=c.match(/^U(\d+)/);return m?+m[1]:900}
 function catGroups(P){const G={};P.forEach(x=>{const k=catKey(x.p);(G[k]=G[k]||[]).push(x)});V.coll=V.coll||{};
   return Object.keys(G).sort((a,b)=>catOrd(a)-catOrd(b)||a.localeCompare(b)).map(k=>{const L_=G[k],nA=L_.filter(x=>x.A.some(a=>a[0]==="hi")).length,c=!!V.coll[k];
     return`<button class="pgrp" data-cat="${esc(k)}" aria-expanded="${!c}"><span class="pgc">${c?"▸":"▾"}</span><b>${k?esc(k):"Sans catégorie"}</b><span class="mut">${L_.length} joueur${L_.length>1?"s":""}</span>${nA?`<span class="tag hi">🚨 ${nA}</span>`:""}</button>${c?"":L_.map(plRow).join("")}`}).join("")}
+function globalView(){
+  const P=DB.players.filter(p=>!p.archived).map(p=>{const E=PE(p.id),M=E.filter(x=>x.kind!=="entrainement"),S=M.filter(x=>x.date>=SEASON()),E28=E.filter(x=>days(x.date)<28);
+    const ms=M.slice(0,3),mp=M.slice(3,6),a1=avg(ms.map(x=>x.min||0)),a0=avg(mp.map(x=>x.min||0));
+    return{p,E,A:alertsFor(p,E),S,cat:catKey(p)||"Sans catégorie",resp:pv(p,"resp")||"Non attribué",min:S.reduce((s,x)=>s+(x.min||0),0),g:S.reduce((s,x)=>s+(x.goals||0),0),a:S.reduce((s,x)=>s+(x.assists||0),0),
+      act:E.length&&days(E[0].date)<=7,form:avg(E28.map(x=>x.form)),moral:avg(E28.map(x=>x.moral)),drop:mp.length>=2&&ms.length>=2&&a0>=30&&a1<a0*.6?[a0,a1]:null,last:E[0]?days(E[0].date):null}});
+  if(!P.length)return'<div class="card empty">Aucun joueur pour le moment.</div>';
+  const n=P.length,nAct=P.filter(x=>x.act).length,tm=P.reduce((s,x)=>s+x.S.length,0),tmin=P.reduce((s,x)=>s+x.min,0);
+  const kp=`<div class="kpis"><div class="kpi"><i>📝</i><b>${Math.round(nAct/n*100)}%</b><span>ont saisi cette semaine (${nAct}/${n})</span></div><div class="kpi"><i>🏟️</i><b>${tm}</b><span>matchs saisis (saison)</span></div><div class="kpi"><i>⏱️</i><b>${tm?Math.round(tmin/tm):0}</b><span>min moy. / match</span></div><div class="kpi"><i>⚽</i><b>${P.reduce((s,x)=>s+x.g,0)}</b><span>buts (saison)</span></div><div class="kpi"><i>🅰️</i><b>${P.reduce((s,x)=>s+x.a,0)}</b><span>passes déc. (saison)</span></div><div class="kpi"><i>🚨</i><b>${P.filter(x=>x.A.some(a=>a[0]==="hi")).length}</b><span>joueurs en alerte</span></div></div>`;
+  const emo=(k,v)=>v?`<span class="emo">${GE[k][Math.round(v)]}</span> ${f1(v)}`:'<span class="mut">—</span>';
+  const grp=(key,title)=>{const G={};P.forEach(x=>{(G[x[key]]=G[x[key]]||[]).push(x)});const keys=Object.keys(G).sort(key==="cat"?((a,b)=>catOrd(a==="Sans catégorie"?"":a)-catOrd(b==="Sans catégorie"?"":b)||a.localeCompare(b)):((a,b)=>a==="Non attribué"?1:b==="Non attribué"?-1:a.localeCompare(b)));
+    return`<div class="card"><h3 style="margin-bottom:10px">${title}</h3><div class="gtab"><div class="gh"><span></span><span>Joueurs</span><span>Actifs 7 j</span><span>Min / match</span><span>Forme</span><span>Moral</span><span>Alertes</span></div>${keys.map(k=>{const L_=G[k],m=L_.reduce((s,x)=>s+x.S.length,0),mi=L_.reduce((s,x)=>s+x.min,0),al=L_.filter(x=>x.A.some(a=>a[0]==="hi")).length;
+      return`<div class="gr"><b>${esc(k)}</b><span>${L_.length}</span><span>${L_.filter(x=>x.act).length}/${L_.length}</span><span>${m?Math.round(mi/m)+"′":"—"}</span><span>${emo("form",avg(L_.map(x=>x.form)))}</span><span>${emo("moral",avg(L_.map(x=>x.moral)))}</span><span>${al?`<span class="tag hi">🚨 ${al}</span>`:'<span class="mut">—</span>'}</span></div>`}).join("")}</div></div>`};
+  const top=(title,f,fmtv,N=5)=>{const L_=P.filter(x=>f(x)>0).sort((a,b)=>f(b)-f(a)).slice(0,N);return`<div class="card"><h3 style="margin-bottom:8px">${title}</h3>${L_.length?L_.map((x,i)=>`<button class="lrow" data-pid="${x.p.id}"><span class="rk">${i+1}</span>${avatar(x.p)}<span class="grow"><b>${esc(x.p.name)}</b><span class="sm mut"> · ${esc(x.cat)}</span></span><b>${fmtv(x)}</b></button>`).join(""):'<p class="mut sm">Pas encore de données.</p>'}</div>`};
+  const watch=[...P.filter(x=>x.drop).map(x=>[x,`⏱️ Temps de jeu en baisse : ${Math.round(x.drop[0])}′ → ${Math.round(x.drop[1])}′ / match`]),
+    ...P.filter(x=>x.moral&&x.moral<=2).map(x=>[x,`😔 Moral bas sur 4 semaines (${f1(x.moral)}/5)`]),
+    ...P.filter(x=>x.last==null||x.last>14).map(x=>[x,x.last==null?"📭 Aucune saisie":`📭 Rien saisi depuis ${x.last} jours`])];
+  return`${kp}
+  <div class="card"><h3 style="margin-bottom:8px">👀 À surveiller</h3>${watch.length?watch.map(([x,t])=>`<button class="lrow" data-pid="${x.p.id}">${avatar(x.p)}<span class="grow"><b>${esc(x.p.name)}</b><span class="sm mut"> · ${esc(x.cat)}</span><div class="sm">${esc(t)}</div></span><span class="chev">›</span></button>`).join(""):'<p class="mut sm">Rien à signaler 👍</p>'}</div>
+  ${grp("cat","📂 Par catégorie")}${grp("resp","🧑‍💼 Par responsable")}
+  <div class="g3">${top("⏱️ Temps de jeu (saison)",x=>x.min,x=>x.min+"′")}${top("⚽ Buteurs (saison)",x=>x.g,x=>x.g)}${top("🅰️ Passeurs (saison)",x=>x.a,x=>x.a)}</div>`}
 function plRow({p,E,A}){const e=E[0]||{},M=E.filter(x=>x.kind!=="entrainement"),lm=M[0],S=M.filter(x=>x.date>=SEASON()),g=S.reduce((s,x)=>s+(x.goals||0),0),a=S.reduce((s,x)=>s+(x.assists||0),0),fa=avg(S.map(x=>x.feel));
   const st=(k,v)=>v?`<span class="emo" style="font-size:18px">${GE[k][v]}</span> ${esc(GW[k][v])}`:'<span class="mut">—</span>';
   return`<button class="prow${A.some(x=>x[0]==="hi")?" alert":""}" data-pid="${p.id}" role="listitem">
@@ -583,6 +609,8 @@ document.addEventListener("click",async ev=>{
       const r=await sb.from("players").delete().eq("id",p.id);if(r.error){$("#dp-err").textContent="Erreur : "+r.error.message;return}
       DB.players=DB.players.filter(x=>x.id!==p.id);DB.entries=DB.entries.filter(x=>x.player_id!==p.id);DB.notes=DB.notes.filter(x=>x.player_id!==p.id);DB.requests=(DB.requests||[]).filter(x=>x.player_id!==p.id);
       closeDlg();V.sel=null;toast(p.name+" a été supprimé");render()};return}
+  case"gv0":V.gv=false;return render();
+  case"gv1":V.gv=true;return render();
   case"invite":return inviteDlg(DB.players.find(x=>x.id===V.sel));
   case"fsave":{const p=DB.players.find(x=>x.id===V.sel),info={...(p.info||{})};let name=p.name;
     document.querySelectorAll("[data-fk]").forEach(i=>{if(i.dataset.fk==="name")name=i.value.trim()||name;else info[i.dataset.fk]=i.value.trim()});
