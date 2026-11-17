@@ -426,7 +426,8 @@ function agencyView(){
   ${V.gv?globalView():`<div class="sp"><h2>${V.arch?"Joueurs archivés":"Joueurs"}</h2><div class="row"><button class="g" data-act="settings">Réglages</button><button class="b" data-act="addp">+ Ajouter un joueur</button></div></div>
   <div class="row" style="margin-bottom:14px"><label class="f grow" style="min-width:180px">Rechercher<input id="q" type="search" value="${esc(V.q||"")}" placeholder="Nom, club, poste, responsable"></label>
    <label class="f">Afficher<select id="flt"><option value="">Tous</option><option value="alert"${V.f==="alert"?" selected":""}>Avec alerte</option><option value="mine"${V.f==="mine"?" selected":""}>Mes joueurs</option></select></label>
-   <label class="f">Trier<select id="srt"><option value="alert">Alertes d’abord</option><option value="last"${V.sort==="last"?" selected":""}>Dernière saisie</option><option value="name"${V.sort==="name"?" selected":""}>Nom</option></select></label></div>
+   <label class="f">Trier<select id="srt"><option value="alert">Alertes d’abord</option><option value="last"${V.sort==="last"?" selected":""}>Dernière saisie</option><option value="name"${V.sort==="name"?" selected":""}>Nom</option></select></label>
+   <label class="f">Regrouper par<select id="grp"><option value="cat">Catégorie</option><option value="resp"${V.grp==="resp"?" selected":""}>Responsable</option></select></label></div>
   ${P.length?`<div class="ptable" role="list"><div class="phead" aria-hidden="true"><span>Joueur</span><span>Dernier match</span><span>Min.</span><span title="Ressenti moyen sur la saison">Ressenti</span><span>Forme</span><span>Moral</span><span>Saison</span><span>Alertes</span><span></span></div>${catGroups(P)}</div>`
    :`<div class="card empty">${DB.players.length?"Aucun joueur ne correspond.":"Aucun joueur pour le moment.<br><br><button class='b' data-act='addp'>+ Ajouter le premier joueur</button>"}</div>`}
   <div class="row" style="margin-top:16px;justify-content:space-between"><button class="g sm" data-act="toggleArch">${V.arch?"← Joueurs actifs":"Voir les joueurs archivés"}</button><button class="g sm" data-act="csv">Exporter les saisies (Excel/CSV)</button></div>`}`}
@@ -438,6 +439,7 @@ const FICHE=[
 function fField([k,l,t,o]){const p=V.fp,v=k==="name"?p.name:((p.info||{})[k]||(p.self||{})[k]||"");const ph="";
   if(t==="sel")return`<label class="f">${l}<select data-fk="${k}">${o.map(x=>`<option value="${esc(x)}"${(v||((p.self||{})[k])||"")===x?" selected":""}>${x||"—"}</option>`).join("")}</select></label>`;
   if(t==="area")return`<label class="f full">${l}<textarea data-fk="${k}">${esc(v)}</textarea></label>`;
+  if(k==="resp"){const N=[...new Set(DB.players.map(x=>respKey(x)).filter(Boolean))];return`<label class="f">${l}<input data-fk="resp" list="resp-l" value="${esc(v)}" placeholder="Ex. Dylan, Giorgio…"><datalist id="resp-l">${N.map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label>`}
   return`<label class="f">${l}<input data-fk="${k}" type="${t==="t"?"text":t==="num"?"number":t}" value="${esc(v)}"${ph}${typeof o==="string"?` placeholder="${esc(o)}"`:""}></label>`}
 function playerDetail(p){
   const E=PE(p.id),A=alertsFor(p,E),M=E.filter(x=>x.kind!=="entrainement"),N=DB.notes.filter(n=>n.player_id===p.id),tab=V.tab||"resume";V.fp=p;
@@ -467,9 +469,10 @@ function reqBanner(p){const L_=(DB.requests||[]).filter(q=>q.player_id===p.id&&q
    <div class="row" style="gap:6px">${tel?`<a class="g sm" style="text-decoration:none" href="tel:${esc(tel.replace(/\s/g,""))}">📞 Appeler</a>`:""}${wa?`<a class="g sm" style="text-decoration:none" href="https://wa.me/${wa}?text=${encodeURIComponent("Salut "+p.name.split(" ")[0]+", j’ai bien reçu ta demande. ")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<button class="g sm" data-rqsched="${q.id}">📅 ${q.status==="open"?"Fixer le RDV":"Modifier le RDV"}</button><button class="b" style="padding:7px 14px;font-size:13px" data-rqdone="${q.id}">✅ Traitée</button></div></div>`).join("")}
 const catKey=p=>{const c=(pv(p,"categorie")||"").trim().toUpperCase().replace(/^-?(\d+)$/,"U$1").replace(/^U\s*-?\s*(\d+)/,"U$1");return c};
 const catOrd=c=>{if(!c)return 1e4;const m=c.match(/^U(\d+)/);return m?+m[1]:900};
-function catGroups(P){const G={};P.forEach(x=>{const k=catKey(x.p);(G[k]=G[k]||[]).push(x)});V.coll=V.coll||{};
-  return Object.keys(G).sort((a,b)=>catOrd(a)-catOrd(b)||a.localeCompare(b)).map(k=>{const L_=G[k],nA=L_.filter(x=>x.A.some(a=>a[0]==="hi")).length,c=!!V.coll[k];
-    return`<button class="pgrp" data-cat="${esc(k)}" aria-expanded="${!c}"><span class="pgc">${c?"▸":"▾"}</span><b>${k?esc(k):"Sans catégorie"}</b><span class="mut">${L_.length} joueur${L_.length>1?"s":""}</span>${nA?`<span class="tag hi">🚨 ${nA}</span>`:""}</button>${c?"":L_.map(plRow).join("")}`}).join("")}
+const respKey=p=>{const r=(pv(p,"resp")||"").trim();return r?r.charAt(0).toUpperCase()+r.slice(1):""};
+function catGroups(P){const byR=V.grp==="resp",kf=byR?respKey:catKey,G={};P.forEach(x=>{const k=kf(x.p);(G[k]=G[k]||[]).push(x)});V.coll=V.coll||{};
+  return Object.keys(G).sort(byR?((a,b)=>!a?1:!b?-1:a.localeCompare(b,"fr",{sensitivity:"base"})):((a,b)=>catOrd(a)-catOrd(b)||a.localeCompare(b))).map(k=>{const L_=G[k],nA=L_.filter(x=>x.A.some(a=>a[0]==="hi")).length,c=!!V.coll[k];
+    return`<button class="pgrp" data-cat="${(byR?"r:":"c:")+esc(k)}" aria-expanded="${!c}"><span class="pgc">${c?"▸":"▾"}</span><b>${byR?"🧑‍💼 ":""}${k?esc(k):byR?"Sans responsable":"Sans catégorie"}</b><span class="mut">${L_.length} joueur${L_.length>1?"s":""}</span>${nA?`<span class="tag hi">🚨 ${nA}</span>`:""}</button>${c?"":L_.map(plRow).join("")}`}).join("")}
 function globalView(){
   const P=DB.players.filter(p=>!p.archived).map(p=>{const E=PE(p.id),M=E.filter(x=>x.kind!=="entrainement"),S=M.filter(x=>x.date>=SEASON()),E28=E.filter(x=>days(x.date)<28);
     const ms=M.slice(0,3),mp=M.slice(3,6),a1=avg(ms.map(x=>x.min||0)),a0=avg(mp.map(x=>x.min||0));
@@ -511,8 +514,10 @@ function inviteDlg(p){const link=APP_URL+"#j="+p.token,msg=`Salut ${p.name.split
     const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>"ABCDEFGHJKMNPQRSTUVWXYZ23456789"[b%31]).join("");
     const r=await sb.from("players").update({token:code}).eq("id",p.id).select().single();if(r.error)return toast("Erreur : "+r.error.message);Object.assign(p,r.data);inviteDlg(p)}}
 function settingsDlg(){dlg(`<h3 style="margin-bottom:12px">Réglages</h3><label class="f">Mon prénom (signature des notes, filtre « Mes joueurs »)<input id="myn" value="${esc(L.me||"")}"></label>
-  <p class="sm mut">Connecté : ${esc(V.email||"")}</p><p class="sm mut">Pour ajouter un associé, invitez son email depuis Supabase (Authentication › Users › Invite user).</p>
+  <p class="sm mut">Connecté : ${esc(V.email||"")}</p><details style="margin:8px 0"><summary class="sm" style="cursor:pointer;font-weight:600">🔑 Changer mon mot de passe</summary><label class="f" style="margin-top:8px">Nouveau mot de passe (8 caractères min.)<input id="npw1" type="password" autocomplete="new-password"></label><label class="f" style="margin-top:8px">Confirmer<input id="npw2" type="password" autocomplete="new-password"></label><p id="npwm" class="sm" style="font-weight:600;min-height:18px"></p><button class="g sm" id="npwok">Enregistrer le mot de passe</button></details><p class="sm mut">Pour ajouter un associé, invitez son email depuis Supabase (Authentication › Users › Invite user).</p>
   <div class="row" style="justify-content:space-between;margin-top:14px"><button class="g" id="lo">Se déconnecter</button><button class="b" id="svs">Enregistrer</button></div>`);
+  $("#npwok").onclick=async()=>{const a=$("#npw1").value,b=$("#npw2").value,m=$("#npwm");if(a.length<8){m.textContent="8 caractères minimum.";return}if(a!==b){m.textContent="Les deux mots de passe sont différents.";return}
+    const r=await sb.auth.updateUser({password:a});m.textContent=r.error?"Erreur : "+r.error.message:"Mot de passe changé ✓";if(!r.error){$("#npw1").value="";$("#npw2").value=""}};
   $("#svs").onclick=()=>{L.me=$("#myn").value.trim();save();closeDlg();render()};
   $("#lo").onclick=async()=>{await sb.auth.signOut();LOADED=false;MODE="login";closeDlg();render()}}
 function resize(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=320,c=document.createElement("canvas"),r=Math.max(s/img.width,s/img.height);c.width=c.height=s;
@@ -628,6 +633,7 @@ document.addEventListener("change",async ev=>{const i=ev.target;
   if(i.id==="fr"){V.draft=readForm();V.draft.role=i.value;return render()}
   if(i.id==="flt"){V.f=i.value;return render()}
   if(i.id==="srt"){V.sort=i.value;return render()}
+  if(i.id==="grp"){V.grp=i.value;return render()}
   if(i.dataset&&i.dataset.fk){V.dirty=true;const m=$("#fsm");if(m)m.textContent="Modifications non enregistrées"}
   if(i.id==="photo"&&i.files[0]){try{const url=await resize(i.files[0]);const p=DB.players.find(x=>x.id===V.sel),info={...(p.info||{}),photo:url};
     const r=await sb.from("players").update({info}).eq("id",p.id).select().single();if(r.error)throw r.error;Object.assign(p,r.data);render()}catch(e){toast("Photo impossible : "+(e.message||e))}}
