@@ -1,5 +1,5 @@
 // Service worker : l'appli s'ouvre même sans réseau. Les échanges avec la base (supabase.co) ne sont jamais mis en cache.
-const V = "dgxa-v9";
+const V = "dgxa-v10";
 const CORE = ["./", "index.html", "manifest.webmanifest", "logo.png", "favicon.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png",
   "barlow-latin-400-normal.woff2", "barlow-latin-500-normal.woff2", "barlow-latin-600-normal.woff2", "barlow-condensed-latin-600-normal.woff2", "barlow-condensed-latin-700-normal.woff2"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
