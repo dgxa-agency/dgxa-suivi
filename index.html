@@ -28,7 +28,7 @@ header{background:#000;color:#fff;padding:calc(12px + env(safe-area-inset-top,0p
 header .brand{display:flex;align-items:center;gap:12px}header img{height:24px;display:block}
 header .brand span{font:700 20px "Barlow Condensed",sans-serif}
 header button{background:none;border:1px solid #ffffff55;color:#fff;border-radius:999px;padding:6px 12px;font:500 13px "Barlow",sans-serif;cursor:pointer}
-main{max-width:1000px;margin:0 auto;padding:18px;overflow-wrap:anywhere}
+main{max-width:1000px;margin:0 auto;padding:18px;overflow-wrap:anywhere}body.wide main{max-width:1240px}
 @media (max-width:420px){main{padding:12px}.card{padding:14px}.hero{padding:16px}.gin .dots{gap:5px}.gin .dots button{height:52px;font-size:26px}.kpis{grid-template-columns:1fr 1fr}.seg button{padding:10px 4px;font-size:13px}header .brand span{font-size:17px}}
 #dlgc{overflow-wrap:break-word}
 .card{background:var(--sf);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px #0000000a,0 10px 30px #0000000a}
@@ -101,6 +101,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ent{border-top:1px solid var(--line);padding:12px 0;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
 .ent:first-child{border-top:0;padding-top:0}
 .empty{padding:28px;text-align:center;color:var(--mut)}
+.chd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}.chd h3{font-size:19px}
+.leg{display:flex;gap:14px;font-size:13px;color:var(--mut)}.leg span{display:inline-flex;align-items:center;gap:6px}.leg svg{color:var(--ink)}
+.chart{color:var(--ink);touch-action:pan-y}.chart text{font-family:"Barlow",sans-serif}
+.hitg line{opacity:0}.hitg:hover line,.hitg.on line{opacity:.25}.hitg:hover .hb,.hitg.on .hb{fill-opacity:.05}
+#tip{position:fixed;z-index:40;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.35;box-shadow:0 8px 24px #0003;max-width:240px;opacity:0;transition:opacity .1s}
+#tip.on{opacity:1}#tip b{display:block;margin-bottom:2px}
+.ptable{background:var(--sf);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 2px #0000000a,0 10px 30px #0000000a}
+.prow,.phead{display:grid;grid-template-columns:minmax(180px,2fr) 1.2fr .65fr .8fr 1.05fr 1.05fr 1.15fr minmax(150px,1.7fr) 12px;gap:12px;align-items:center;padding:12px 16px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;border-top:1px solid var(--line)}
+.prow{cursor:pointer}.prow:hover{background:var(--bg)}.prow.alert{box-shadow:inset 4px 0 0 var(--ink)}
+.phead span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.phead{border-top:0;font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.5px;background:var(--bg);padding-top:10px;padding-bottom:10px}
+.prow .lbl{display:none}.prow .num{font:700 20px "Barlow Condensed",sans-serif}
+.c-name{display:flex;gap:10px;align-items:center;min-width:0}.c-name .av{width:40px;height:40px;font-size:16px}.c-name b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-name>div:last-child{min-width:0}.c-name .sm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{color:var(--mut);font-size:18px}
+@media (max-width:1000px){.phead{display:none}.prow{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"n n n" "l mi fe" "f m s" "a a a";gap:10px;padding:14px}
+ .c-name{grid-area:n}.c-last{grid-area:l}.c-min{grid-area:mi}.c-feel{grid-area:fe}.c-form{grid-area:f}.c-moral{grid-area:m}.c-season{grid-area:s}.c-alerts{grid-area:a}.chev{display:none}
+ .prow .lbl{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px}}
 .banner{border:2px solid var(--ink);border-radius:14px;padding:12px 14px;margin-bottom:14px;background:var(--sf)}
 .code{font:700 30px "Barlow Condensed",sans-serif;letter-spacing:4px}
 #dlg{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}
@@ -116,7 +133,7 @@ svg text{font-family:"Barlow",sans-serif}
 <header><div class="brand"><img src="logo.png" alt="DGXA"><span id="hd">Suivi des jeunes</span></div><div id="hbtn"></div></header>
 <main id="app"><div class="empty">Chargement…</div></main>
 <div id="dlg" hidden role="dialog" aria-modal="true"><div class="card" id="dlgc"></div></div>
-<div id="toast" role="status"></div>
+<div id="toast" role="status"></div><div id="tip" role="tooltip"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 <script>
 /* ================= CONFIG ================= */
@@ -157,6 +174,8 @@ const INJE=["✅","⚠️","🚑"];
 const INJ=["Rien","Gêne","Blessé"];
 const ZONES=["Cheville","Pied","Genou","Mollet","Cuisse / ischios","Hanche / aine","Dos","Épaule","Tête","Autre"];
 const ROLES=["Titulaire","Remplaçant","Non utilisé","Hors groupe"];
+const RQ_REASONS=["😔 Moral","🚑 Blessure / santé","⏱️ Temps de jeu","🏟️ Club / coach","🎒 École","💬 Autre"],RQ_PREFS=["📞 Appel","🤝 Rencontre","💬 WhatsApp"];
+const fmtDT=t=>t?new Date(t).toLocaleString("fr-FR",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const POSTES=["","Gardien","Défenseur central","Latéral","Milieu défensif","Milieu","Milieu offensif","Ailier","Attaquant"];
 const PIEDS=["","Droit","Gauche","Les deux"];
 const gaugeRow=(k,v)=>`<span class="mut">${GS[k]}</span><span class="emo" role="img" aria-label="${v?GW[k][v]+", "+v+" sur 5":"non renseigné"}">${v?GE[k][v]:"·"}</span><span>${v?esc(GW[k][v]):'<span class="mut">—</span>'}</span>`;
@@ -166,8 +185,9 @@ const kindLbl=e=>e.kind==="entrainement"?"🏃 Entraînement":"⚽ Match"+(e.opp
 
 function contractAlert(p,A){const f=(p.info||{}).fin_contrat;if(!/^\d{4}-\d{2}-\d{2}$/.test(f||""))return;const d=-days(f);
   if(d<0)A.push(["hi","📄 Contrat terminé"]);else if(d<=90)A.push(["hi","📄 Fin de contrat dans "+d+" j"]);else if(d<=182)A.push(["mid","📄 Fin de contrat dans "+Math.round(d/30)+" mois"])}
+const openReq=id=>(DB.requests||[]).find(q=>q.player_id===id&&q.status==="open"),nextAppt=id=>(DB.requests||[]).find(q=>q.player_id===id&&q.status==="scheduled");
 function alertsFor(p,E){
-  const A=[],e=E[0],e2=E[1];contractAlert(p,A);
+  const A=[],e=E[0],e2=E[1];if(typeof DB!=="undefined"){if(openReq(p.id))A.push(["hi","🙋 Demande de RDV"]);else{const s=nextAppt(p.id);if(s)A.push(["mid","📅 RDV "+fmtDT(s.appt_at)])}}contractAlert(p,A);
   if(!E.length){A.push(["mid",p.last_seen?"📭 Aucune saisie":"✉️ Lien pas encore ouvert"]);return A}
   if(e.inj)A.push(["hi",INJE[e.inj]+" "+(e.inj===2?"Blessé":"Gêne")+(e.zone?" : "+e.zone.toLowerCase():"")]);
   else if(e2&&e2.inj&&days(e2.date)<14)A.push(["mid","⚠️ Gêne récente"]);
@@ -181,7 +201,7 @@ function alertsFor(p,E){
 const tags=A=>A.map(a=>`<span class="tag ${a[0]==="hi"?"hi":""}">${esc(a[1])}</span>`).join("")||'<span class="tag ok">👍 RAS</span>';
 
 /* ================= GRAPHIQUES ================= */
-const CX0=36,CX1=548,DAY=864e5;
+const CX0=40,DAY=864e5;let CVW=560,CX1=550;const sizeCharts=()=>{CVW=innerWidth<560?360:560;CX1=CVW-10};
 const iso10=t=>new Date(t).toISOString().slice(0,10);
 const mKey=d=>d.slice(0,7)+"-01",sKey=d=>(+d.slice(5,7)>=7?+d.slice(0,4):+d.slice(0,4)-1)+"-07-01";
 const addM=(d,n)=>{const x=new Date(d+"T00:00:00Z");x.setUTCMonth(x.getUTCMonth()+n);return iso10(x)};
@@ -189,24 +209,31 @@ const PER={week:{n:12,lbl:"semaine",title:"12 dernières semaines",key:wk,next:d
  month:{n:12,lbl:"mois",title:"12 derniers mois",key:mKey,next:d=>addM(d,1),prev:(d,i)=>addM(d,-i),tick:d=>new Date(d+"T00:00:00Z").toLocaleDateString("fr-FR",{month:"short",year:"2-digit",timeZone:"UTC"}),every:2,sub:mKey,subMid:15*DAY,subLbl:"moyenne par mois"},
  season:{n:5,lbl:"saison",title:"5 dernières saisons",key:sKey,next:d=>addM(d,12),prev:(d,i)=>addM(d,-12*i),tick:d=>d.slice(2,4)+"-"+String(+d.slice(2,4)+1).padStart(2,"0"),every:1,sub:sKey,subMid:182*DAY,subLbl:"moyenne par saison"}};
 function buckets(p){const P=PER[p],cur=P.key(today()),B=[];for(let i=P.n-1;i>=0;i--){const s=P.prev(cur,i);B.push({s,e:P.next(s)})}return B}
-const ticks=(p,B,y)=>{const P=PER[p],cw=(CX1-CX0)/B.length;return B.map((b,i)=>(B.length-1-i)%P.every?"":`<text x="${CX0+i*cw+cw/2}" y="${y}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".55">${P.tick(b.s)}</text>`).join("")};
-function barChart(E,p="week"){
-  const B=buckets(p),cw=(CX1-CX0)/B.length,M=E.filter(x=>x.kind!=="entrainement");
-  const v=B.map(b=>M.filter(x=>x.date>=b.s&&x.date<b.e).reduce((s,x)=>s+x.min,0)),mx=Math.max(90,...v);
-  return`<svg viewBox="0 0 560 140" style="width:100%;height:auto" role="img" aria-label="Minutes jouées par ${PER[p].lbl}">${v.map((x,i)=>{const h=x/mx*96,cx=CX0+i*cw+cw/2;return`<rect x="${cx-cw/2+Math.min(6,cw*.15)}" y="${116-h}" width="${cw-2*Math.min(6,cw*.15)}" height="${Math.max(h,x?2:0)}" rx="4" fill="currentColor"/><text x="${cx}" y="${110-h}" text-anchor="middle" font-size="12" fill="currentColor">${x||""}</text>`}).join("")}${ticks(p,B,134)}</svg>
-  <p class="sm mut" style="margin:4px 0 0">Matchs uniquement · ${PER[p].title}</p>`}
-function lineChart(E,p="week"){
+const ticks=(p,B,y)=>{const P=PER[p],cw=(CX1-CX0)/B.length;return B.map((b,i)=>(B.length-1-i)%P.every?"":`<text x="${CX0+i*cw+cw/2}" y="${y}" text-anchor="middle" font-size="10.5" fill="currentColor" opacity=".5">${P.tick(b.s)}</text>`).join("")};
+const niceMax=m=>{if(m<=0)return 90;const g=Math.pow(10,Math.floor(Math.log10(m)));for(const f of [1,1.5,2,2.5,3,4,5,6,8,10])if(f*g>=m)return f*g;return 10*g};
+const bucketLbl=(p,b)=>p==="week"?"Semaine du "+fmt(b.s):p==="month"?new Date(b.s+"T00:00:00Z").toLocaleDateString("fr-FR",{month:"long",year:"numeric",timeZone:"UTC"}):"Saison "+PER.season.tick(b.s);
+const topRound=(x,y,w,h,r)=>{r=Math.min(r,w/2,h);return`M${x} ${y+h}V${y+r}Q${x} ${y} ${x+r} ${y}H${x+w-r}Q${x+w} ${y} ${x+w} ${y+r}V${y+h}Z`};
+function barChart(E,p="week"){sizeCharts();
+  const B=buckets(p),cw=(CX1-CX0)/B.length,M=E.filter(x=>x.kind!=="entrainement"),Y0=148,YT=18;
+  const D=B.map(b=>{const m=M.filter(x=>x.date>=b.s&&x.date<b.e);return{v:m.reduce((s,x)=>s+x.min,0),n:m.length,g:m.reduce((s,x)=>s+(x.goals||0),0)}});
+  const vals=D.map(d=>d.v),top=niceMax(Math.max(...vals)),y=v=>Y0-(v/top)*(Y0-YT),imax=vals.indexOf(Math.max(...vals)),bw=Math.min(28,cw*.56);
+  const grid=[0,top/2,top].map(t=>`<line x1="${CX0}" x2="${CX1}" y1="${y(t)}" y2="${y(t)}" stroke="currentColor" opacity="${t?.08:.25}"/><text x="${CX0-6}" y="${y(t)+4}" text-anchor="end" font-size="10.5" fill="currentColor" opacity=".5">${Math.round(t)}</text>`).join("");
+  const bars=D.map((d,i)=>{const cx=CX0+i*cw+cw/2,h=Y0-y(d.v),lab=(d.v&&(i===imax||i===D.length-1))?`<text x="${cx}" y="${y(d.v)-6}" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">${d.v}</text>`:"";
+    return`<g class="hitg" data-tip="${esc(bucketLbl(p,B[i]))}|${d.v} min jouées|${d.n} match${d.n>1?"s":""}${d.g?" · "+d.g+" but"+(d.g>1?"s":""):""}"><rect class="hb" x="${cx-cw/2}" y="${YT-8}" width="${cw}" height="${Y0-YT+8}" fill="currentColor" fill-opacity="0"/>${d.v?`<path d="${topRound(cx-bw/2,y(d.v),bw,h,4)}" fill="currentColor"/>`:""}${lab}</g>`}).join("");
+  return`<div class="chart"><svg viewBox="0 0 ${CVW} 170" style="width:100%;height:auto;display:block" role="img" aria-label="Minutes jouées par ${PER[p].lbl}, ${PER[p].title}">${grid}${bars}${ticks(p,B,166)}</svg></div>`}
+function lineChart(E,p="week"){sizeCharts();
   const P=PER[p],B=buckets(p),t0=Date.parse(B[0].s),t1=Date.parse(B[B.length-1].e);
   const G={};E.filter(x=>(x.form||x.moral)&&x.date<=today()&&x.date>=B[0].s).forEach(x=>{const k=P.sub(x.date),d=G[k]||(G[k]={date:k,f:[],m:[]});if(x.form)d.f.push(x.form);if(x.moral)d.m.push(x.moral)});
   const L=Object.values(G).sort((a,b)=>a.date<b.date?-1:1).map(d=>({date:d.date,form:avg(d.f),moral:avg(d.m)}));if(!L.length)return`<p class="mut sm">Aucune saisie sur les ${P.title}.</p>`;
-  const w=560,h=150,px=d=>CX0+((Date.parse(d)+P.subMid-t0)/(t1-t0))*(CX1-CX0),py=v=>120-(v-1)*25;
-  const path=k=>{let d="",on=false;L.forEach(x=>{if(x[k]){d+=(on?"L":"M")+px(x.date)+" "+py(x[k]);on=true}});return d};
-  const dots=k=>L.map(x=>{if(!x[k])return"";const X=px(x.date),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4.5" fill="currentColor"/>`:`<path d="M${X} ${Y-8}L${X+8} ${Y}L${X} ${Y+8}L${X-8} ${Y}Z" fill="none" stroke="currentColor" stroke-width="2"/>`}).join("");
-  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Évolution de la forme et du moral, ${P.title}">
-  ${[1,2,3,4,5].map(v=>`<line x1="24" x2="${w-12}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity=".1"/><text x="2" y="${py(v)+5}" font-size="13">${GE.form[v]}</text>`).join("")}
-  <path d="${path("form")}" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="${path("moral")}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5"/>
-  ${dots("form")}${dots("moral")}${ticks(p,B,h-4)}</svg>
-  <p class="sm mut" style="margin:4px 0 0">━● Forme physique &nbsp;&nbsp; ╍◇ Moral &nbsp;· de 🪫 (très bas) à ⚡ (au top) · ${P.subLbl} · ${P.title}</p>`}
+  const w=CVW,h=170,Y0=140,YT=22,px=d=>CX0+((Date.parse(d)+P.subMid-t0)/(t1-t0))*(CX1-CX0),py=v=>Y0-(v-1)/4*(Y0-YT);
+  const path=k=>{let d="",on=false;L.forEach(x=>{if(x[k]){d+=(on?"L":"M")+px(x.date).toFixed(1)+" "+py(x[k]).toFixed(1);on=true}});return d};
+  const mk=L.length<=24,dots=k=>mk?L.map(x=>{if(!x[k])return"";const X=px(x.date),Y=py(x[k]);return k==="form"?`<circle cx="${X}" cy="${Y}" r="4" fill="currentColor" stroke="var(--sf)" stroke-width="2"/>`:`<rect x="${X-3.5}" y="${Y-3.5}" width="7" height="7" fill="var(--sf)" stroke="currentColor" stroke-width="2"/>`}).join(""):"";
+  const grid=[1,3,5].map(v=>`<line x1="${CX0}" x2="${CX1}" y1="${py(v)}" y2="${py(v)}" stroke="currentColor" opacity="${v===1?.25:.08}"/><text x="${CX0-6}" y="${py(v)+4}" text-anchor="end" font-size="10.5" fill="currentColor" opacity=".5">${v}</text>`).join("");
+  const xs=L.map(x=>px(x.date)),hits=L.map((x,i)=>{const a=i?(xs[i-1]+xs[i])/2:CX0,b=i<L.length-1?(xs[i]+xs[i+1])/2:CX1,f=Math.round(x.form||0),m=Math.round(x.moral||0);
+    return`<g class="hitg" data-tip="${esc((p==="week"?fmt(x.date):bucketLbl(p,{s:x.date})))}|Forme : ${x.form?GE.form[f]+" "+GW.form[f]+" ("+f1(x.form)+")":"—"}|Moral : ${x.moral?GE.moral[m]+" "+GW.moral[m]+" ("+f1(x.moral)+")":"—"}"><rect x="${a}" y="${YT-10}" width="${Math.max(b-a,1)}" height="${Y0-YT+20}" fill="transparent"/><line x1="${xs[i]}" x2="${xs[i]}" y1="${YT-6}" y2="${Y0}" stroke="currentColor" stroke-width="1"/></g>`}).join("");
+  return`<div class="chart"><svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block" role="img" aria-label="Évolution de la forme et du moral, ${P.title}">${grid}
+    <path d="${path("moral")}" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round" opacity=".75"/><path d="${path("form")}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  ${dots("moral")}${dots("form")}${hits}${ticks(p,B,166)}</svg></div>`}
 
 /* ================= SUPABASE ================= */
 let sb=null;try{if(window.supabase&&!SB_URL.startsWith("__"))sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,autoRefreshToken:true}})}catch(e){console.error(e)}
@@ -251,14 +278,15 @@ async function playerSync(load){
   if(!sb){V.pmsg="Connexion au serveur impossible pour le moment. Tes saisies sont gardées sur ce téléphone.";return render()}
   // envoie la file d'attente
   while(L.queue.length){const op=L.queue[0];
-    try{const r=op.op==="save"?await sb.rpc("player_save_entry",{p_token:L.code,e:op.e}):op.op==="del"?await sb.rpc("player_delete_entry",{p_token:L.code,p_id:op.id}):await sb.rpc("player_save_self",{p_token:L.code,p_self:op.self,p_consent:op.consent});
+    try{const r=op.op==="req"?await sb.rpc("player_request",{p_token:L.code,r:op.r}):op.op==="save"?await sb.rpc("player_save_entry",{p_token:L.code,e:op.e}):op.op==="del"?await sb.rpc("player_delete_entry",{p_token:L.code,p_id:op.id}):await sb.rpc("player_save_self",{p_token:L.code,p_self:op.self,p_consent:op.consent});
       if(r.error){if(/code invalide/.test(r.error.message)){V.pbad=true;break}if(isNetErr(r.error))break;console.error(r.error);L.queue.shift();save();continue}
       L.queue.shift();save()}catch(e){break}}
   if(load||!L.cache){try{const r=await sb.rpc("player_get",{p_token:L.code});
       if(r.error)throw r.error;if(r.data===null){V.pbad=true}else{const pend=L.queue.filter(o=>o.op==="save").map(o=>o.e),del=L.queue.filter(o=>o.op==="del").map(o=>o.id);
         let E=(r.data.entries||[]).filter(e=>!del.includes(e.id));pend.forEach(p=>{const i=E.findIndex(x=>x.id===p.id);if(i>=0)E[i]=p;else E.unshift(p)});
         if($("#fd"))V.draft=readForm();
-        L.cache={name:r.data.name,self:r.data.self||{},consent_at:r.data.consent_at||(L.cache&&L.cache.consent_at),entries:E};V.pbad=false;save()}}
+        const pr=L.queue.filter(o=>o.op==="req").map(o=>({...o.r,status:"pending"}));
+        L.cache={name:r.data.name,self:r.data.self||{},consent_at:r.data.consent_at||(L.cache&&L.cache.consent_at),entries:E,requests:pr.concat(r.data.requests||[])};V.pbad=false;save()}}
     catch(e){if(!isNetErr(e))console.error(e)}}
   render()}
 addEventListener("online",()=>{if(MODE==="player")playerSync(false)});
@@ -273,7 +301,7 @@ function playerView(){
   const E=c.entries.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0),ed=V.edit&&E.find(x=>x.id===V.edit),f=V.draft||ed||{kind:"match",date:today(),role:"Titulaire",inj:0};
   const nq=L.queue.length,isM=f.kind!=="entrainement",hasMin=isM?(f.role==="Titulaire"||f.role==="Remplaçant"):true;
   return`<div style="max-width:620px;margin:0 auto">
-  <div class="hero"><div class="sm" style="opacity:.7">${hello()}</div><h2>${esc(c.name.split(" ")[0])} 👋</h2><div class="pills">${streak(E)>=2?`<span class="pill">🔥 ${streak(E)} semaines d’affilée</span>`:""}<span class="pill">📋 ${E.length} saisie${E.length>1?"s":""}</span><span class="pill">${nq?`📶 ${nq} en attente de réseau`:"✅ Tout est envoyé"}</span></div></div>
+  <div class="hero"><div class="sm" style="opacity:.7">${hello()}</div><h2>${esc(c.name.split(" ")[0])} 👋</h2><div class="pills">${streak(E)>=2?`<span class="pill">🔥 ${streak(E)} semaines d’affilée</span>`:""}<span class="pill">📋 ${E.length} saisie${E.length>1?"s":""}</span><span class="pill">${nq?`📶 ${nq} en attente de réseau`:"✅ Tout est envoyé"}</span></div></div>${reqCard(c)}
   ${V.pbad?`<div class="banner"><b>Ton code n’est plus actif.</b> Contacte l’agence.</div>`:""}${installCard()}
   <div class="card" id="form"><h3 style="margin-bottom:12px">${ed?"Modifier ma saisie":"Nouvelle saisie"}</h3>
    <div class="seg" role="group" aria-label="Type"><button data-kind="match" class="${isM?"on":""}">⚽ Match</button><button data-kind="entrainement" class="${!isM?"on":""}">🏃 Entraînement</button></div>
@@ -296,8 +324,26 @@ function playerView(){
    <div class="row" style="margin-top:12px"><button class="g" data-act="pself">Enregistrer</button></div><p class="sm mut" style="margin:14px 0 6px">Mon code joueur : <b style="letter-spacing:2px">${esc(L.code)}</b></p><button class="g sm" data-act="pout">Ce n’est pas moi / changer de code</button></details></div></div>`}
 const hello=()=>{const h=new Date().getHours();return h<6?"Bonne nuit":h<12?"Bonjour":h<18?"Bon après-midi":"Bonsoir"};
 function streak(E){const W=new Set(E.map(e=>wk(e.date)));let n=0,d=Date.parse(wk(today()));if(!W.has(wk(today())))d-=7*864e5;while(W.has(new Date(d).toISOString().slice(0,10))){n++;d-=7*864e5}return n}
+function reqCard(c){const R=(c.requests||[]).find(q=>q.status!=="done");
+  if(!R)return`<div class="card row" style="align-items:center;justify-content:space-between"><span><b>Besoin de parler ?</b> <span class="mut">Ton responsable est là pour toi.</span></span><button class="g" data-act="rqopen">🙋 Demander un RDV</button></div>`;
+  return`<div class="banner">${R.status==="scheduled"?`<b>📅 Rendez-vous fixé : ${esc(fmtDT(R.appt_at))}</b>`:R.status==="pending"?`<b>📶 Demande de RDV enregistrée</b> <span class="mut">· envoi dès que le réseau revient</span>`:`<b>🙋 Demande de RDV envoyée</b> <span class="mut">· ton responsable va te recontacter</span>`}
+  <div class="sm" style="margin-top:4px">${esc(R.reason)}${R.pref?" · "+esc(R.pref):""}</div>${R.agency_note?`<div class="sm" style="margin-top:4px">💬 <i>« ${esc(R.agency_note)} »</i></div>`:""}</div>`}
+function reqDlg(reason){dlg(`<h3 style="margin-bottom:4px">🙋 Parler à mon responsable</h3><p class="mut sm" style="margin-top:0">Ta demande arrive directement à l’agence. Tu seras recontacté.</p>
+  <div class="lab" style="font-weight:600;margin:10px 0 6px">C’est à propos de…</div><div class="row" style="gap:6px" id="rq-r">${RQ_REASONS.map(x=>`<button type="button" class="g sm${x===reason?" on":""}" data-rr="${esc(x)}" style="${x===reason?"background:var(--ink);color:var(--bg)":""}">${x}</button>`).join("")}</div>
+  <div class="lab" style="font-weight:600;margin:14px 0 6px">Je préfère…</div><div class="seg" id="rq-p">${RQ_PREFS.map((x,i)=>`<button type="button" data-rp="${esc(x)}" class="${i===0?"on":""}">${x}</button>`).join("")}</div>
+  <label class="f">Quand es-tu disponible ?<input id="rq-s" maxlength="200" placeholder="Ex. ce soir après 18h, mercredi après-midi…"></label>
+  <label class="f" style="margin-top:10px">Ton message (facultatif)<textarea id="rq-m" maxlength="1000" placeholder="Explique en quelques mots si tu veux."></textarea></label>
+  <p id="rq-err" class="sm" style="font-weight:600;min-height:18px;margin:8px 0"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeDlg()">Annuler</button><button class="b" id="rq-ok">Envoyer la demande</button></div>`);
+  let rr=reason||"",rp=RQ_PREFS[0];
+  $("#rq-r").onclick=e=>{const b=e.target.closest("[data-rr]");if(!b)return;rr=b.dataset.rr;$("#rq-r").querySelectorAll("button").forEach(x=>{const on=x===b;x.style.background=on?"var(--ink)":"";x.style.color=on?"var(--bg)":""})};
+  $("#rq-p").onclick=e=>{const b=e.target.closest("[data-rp]");if(!b)return;rp=b.dataset.rp;$("#rq-p").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b))};
+  $("#rq-ok").onclick=async()=>{if(!rr){$("#rq-err").textContent="Choisis le sujet.";return}
+    const r={id:uuid(),reason:rr,pref:rp,slots:$("#rq-s").value.trim(),message:$("#rq-m").value.trim(),created_at:new Date().toISOString()};
+    L.queue.push({op:"req",r});L.cache.requests=[{...r,status:"pending"}].concat(L.cache.requests||[]);save();closeDlg();render();await playerSync(true);
+    toast(L.queue.some(o=>o.op==="req"&&o.r.id===r.id)?"Demande enregistrée · envoi dès que le réseau revient":"Demande envoyée à ton responsable ✓")}}
 function cheer(e,offline){const m=e.goals?`⚽ Bravo pour ${e.goals>1?"tes "+e.goals+" buts":"ton but"} ! ${e.inj?"Et prends soin de toi 🙏":"Continue comme ça 🔥"}`:e.assists&&!e.inj?`🅰️ Belle passe décisive ! Continue comme ça 🔥`:e.inj?"Prends soin de toi 🙏 L’agence est prévenue.":e.moral&&e.moral<=2?"Courage 💪 L’agence est là si tu veux en parler.":e.form&&e.form<=2?"Pense à bien récupérer 😴":e.feel>=4||e.form>=4?"Continue comme ça 🔥":"Merci, c’est bien noté 👍";
-  dlg(`<span class="big">${offline?"📶":"✅"}</span><h2 style="text-align:center">${offline?"Enregistré":"Envoyé à l’agence !"}</h2><p style="text-align:center;margin:8px 0 4px">${m}</p>${offline?'<p class="sm mut" style="text-align:center">Pas de réseau : l’envoi se fera automatiquement dès qu’il revient.</p>':""}<button class="b wide" style="margin-top:12px" onclick="closeDlg()">OK</button>`);clearTimeout(cheer.t);cheer.t=setTimeout(closeDlg,3500)}
+  dlg(`<span class="big">${offline?"📶":"✅"}</span><h2 style="text-align:center">${offline?"Enregistré":"Envoyé à l’agence !"}</h2><p style="text-align:center;margin:8px 0 4px">${m}</p>${offline?'<p class="sm mut" style="text-align:center">Pas de réseau : l’envoi se fera automatiquement dès qu’il revient.</p>':""}${(e.inj||(e.moral&&e.moral<=2)||e.form===1)?`<button class="g wide" style="margin-top:12px" id="ch-rq">🙋 Demander un RDV avec mon responsable</button>`:""}<button class="b wide" style="margin-top:12px" onclick="closeDlg()">OK</button>`);clearTimeout(cheer.t);
+  const rb=$("#ch-rq");if(rb){rb.onclick=()=>{clearTimeout(cheer.t);reqDlg(e.inj?RQ_REASONS[1]:RQ_REASONS[0])}}else cheer.t=setTimeout(closeDlg,3500)}
 const stepper=(k,l,v)=>`<div class="step"><span>${l}</span><div class="ctl"><button type="button" data-st="${k}" data-d="-1" aria-label="Moins">−</button><b id="st-${k}">${v||0}</b><button type="button" data-st="${k}" data-d="1" aria-label="Plus">+</button></div></div>`;
 const statLine=e=>e.kind==="entrainement"||!(e.goals||e.assists)?"":`<div class="sm" style="margin-top:4px;font-weight:600">${e.goals?"⚽ "+e.goals+" but"+(e.goals>1?"s":""):""}${e.goals&&e.assists?" · ":""}${e.assists?"🅰️ "+e.assists+" passe"+(e.assists>1?"s":"")+" déc.":""}</div>`;
 const coachLine=e=>e.coach?`<div class="sm" style="margin-top:4px">🗣️ <i>Coach : « ${esc(e.coach)} »</i></div>`:"";
@@ -311,7 +357,7 @@ function readForm(){const f=V.draft||(V.edit&&L.cache&&L.cache.entries.find(x=>x
     inj:f.inj||0,zone:f.inj&&$("#fz")?$("#fz").value:"",note:$("#fn")?$("#fn").value.trim():""}}
 
 /* ================= AGENCE ================= */
-let DB={players:[],entries:[],notes:[]},LOADED=false;
+let DB={players:[],entries:[],notes:[],requests:[]},LOADED=false;
 function loginView(){return`<div class="center card"><h2 style="margin-bottom:12px">Espace agence</h2>
   <label class="f">Email<input id="le" type="email" autocomplete="username" value="${esc(L.email||"")}"></label>
   <label class="f" style="margin-top:10px">Mot de passe<input id="lp" type="password" autocomplete="current-password"></label>
@@ -322,13 +368,13 @@ function setPwView(){return`<div class="center card"><h2 style="margin-bottom:6p
   <p id="perr" class="sm" style="font-weight:600;min-height:18px;margin:8px 0"></p><button class="b wide" data-act="setpw">Enregistrer</button></div>`}
 async function agencyLoad(){
   if(!sb)return render();
-  const [p,e,n]=await Promise.all([sb.from("players").select("*").order("name"),sb.from("entries").select("*").order("date",{ascending:false}).limit(10000),sb.from("notes").select("*").order("created_at",{ascending:false})]);
+  const [p,e,n,q]=await Promise.all([sb.from("players").select("*").order("name"),sb.from("entries").select("*").order("date",{ascending:false}).limit(10000),sb.from("notes").select("*").order("created_at",{ascending:false}),sb.from("requests").select("*").order("created_at",{ascending:false})]);
   const err=p.error||e.error||n.error;if(err){if(/JWT|auth/i.test(err.message)){await sb.auth.signOut();MODE="login";return render()}V.aerr="Impossible de charger les données ("+err.message+").";return render()}
-  DB={players:p.data,entries:e.data,notes:n.data};LOADED=true;V.aerr="";MODE="agency";render()}
+  DB={players:p.data,entries:e.data,notes:n.data,requests:q.error?[]:q.data};LOADED=true;V.aerr="";MODE="agency";render()}
 const busy=()=>V.dirty||!$("#dlg").hidden||/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")||($("#nt")&&$("#nt").value.trim());
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&MODE==="agency"&&LOADED&&!busy())agencyLoad()});
 setInterval(()=>{if(!document.hidden&&MODE==="agency"&&LOADED&&!busy())agencyLoad()},60000);
-const PE=id=>DB.entries.filter(e=>e.player_id===id);
+const PE=id=>DB.entries.filter(e=>e.player_id===id).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
 const pv=(p,k)=>(p.info||{})[k]||(p.self||{})[k]||"";
 const avatar=(p,xl)=>`<div class="av${xl?" xl":""}">${(p.info||{}).photo?`<img src="${esc(p.info.photo)}" alt="">`:esc(ini(p.name))}</div>`;
 const subLine=p=>[pv(p,"categorie"),pv(p,"poste"),age(pv(p,"birth"))!=null?age(pv(p,"birth"))+" ans":"",pv(p,"club")].filter(Boolean).map(esc).join(" · ");
@@ -342,13 +388,12 @@ function agencyView(){
   P=P.filter(x=>(!q||(x.p.name+" "+subLine(x.p)+" "+pv(x.p,"resp")+" "+pv(x.p,"tel")).toLowerCase().includes(q))&&(V.f!=="alert"||x.A.length)&&(V.f!=="mine"||!me||pv(x.p,"resp").toLowerCase()===me));
   const sc=x=>x.A.reduce((n,a)=>n+(a[0]==="hi"?10:1),0);
   P.sort((a,b)=>V.sort==="name"?a.p.name.localeCompare(b.p.name):V.sort==="last"?((a.E[0]||{}).date<(b.E[0]||{}).date?1:-1):sc(b)-sc(a)||a.p.name.localeCompare(b.p.name));
-  return`<div class="kpis"><div class="kpi"><i>👥</i><b>${DB.players.filter(p=>!p.archived).length}</b><span>joueurs suivis</span></div><div class="kpi"><i>🚨</i><b>${nHi}</b><span>alerte(s) prioritaire(s)</span></div><div class="kpi"><i>📈</i><b>${nWeek}</b><span>actifs cette semaine</span></div></div>
+  return`<div class="kpis"><div class="kpi"><i>👥</i><b>${DB.players.filter(p=>!p.archived).length}</b><span>joueurs suivis</span></div><div class="kpi"><i>🙋</i><b>${(DB.requests||[]).filter(q=>q.status==="open"&&DB.players.some(p=>p.id===q.player_id&&!p.archived)).length}</b><span>demande(s) de RDV</span></div><div class="kpi"><i>🚨</i><b>${nHi}</b><span>alerte(s) prioritaire(s)</span></div><div class="kpi"><i>📈</i><b>${nWeek}</b><span>actifs cette semaine</span></div></div>
   <div class="sp"><h2>${V.arch?"Joueurs archivés":"Joueurs"}</h2><div class="row"><button class="g" data-act="settings">Réglages</button><button class="b" data-act="addp">+ Ajouter un joueur</button></div></div>
   <div class="row" style="margin-bottom:14px"><label class="f grow" style="min-width:180px">Rechercher<input id="q" type="search" value="${esc(V.q||"")}" placeholder="Nom, club, poste, responsable"></label>
    <label class="f">Afficher<select id="flt"><option value="">Tous</option><option value="alert"${V.f==="alert"?" selected":""}>Avec alerte</option><option value="mine"${V.f==="mine"?" selected":""}>Mes joueurs</option></select></label>
    <label class="f">Trier<select id="srt"><option value="alert">Alertes d’abord</option><option value="last"${V.sort==="last"?" selected":""}>Dernière saisie</option><option value="name"${V.sort==="name"?" selected":""}>Nom</option></select></label></div>
-  ${P.length?`<div class="plist">${P.map(({p,E,A})=>{const e=E[0]||{};return`<button class="pc${A.some(a=>a[0]==="hi")?" alert":""}" data-pid="${p.id}"><div class="ph">${avatar(p)}<div class="grow" style="min-width:0"><b style="font-size:16px">${esc(p.name)}</b><div class="sm mut">${subLine(p)||"&nbsp;"}</div></div><span class="sm mut" style="white-space:nowrap">${E.length?ago(e.date):""}</span></div>
-     <div class="gl">${gaugeRow("form",e.form)}${gaugeRow("moral",e.moral)}</div>${(g=>g.m?`<div class="sm mut">Saison : 🏟️ ${g.m} match${g.m>1?"s":""} · ⚽ ${g.g} · 🅰️ ${g.a}</div>`:"")(E.filter(x=>x.kind!=="entrainement"&&x.date>=SEASON()).reduce((o,x)=>({m:o.m+1,g:o.g+(x.goals||0),a:o.a+(x.assists||0)}),{m:0,g:0,a:0}))}<div>${tags(A)}</div></button>`}).join("")}</div>`
+  ${P.length?`<div class="ptable" role="list"><div class="phead" aria-hidden="true"><span>Joueur</span><span>Dernier match</span><span>Min.</span><span title="Moyenne de la saison">Ressenti moy.</span><span>Forme</span><span>Moral</span><span>Saison</span><span>Alertes</span><span></span></div>${P.map(plRow).join("")}</div>`
    :`<div class="card empty">${DB.players.length?"Aucun joueur ne correspond.":"Aucun joueur pour le moment.<br><br><button class='b' data-act='addp'>+ Ajouter le premier joueur</button>"}</div>`}
   <div class="row" style="margin-top:16px;justify-content:space-between"><button class="g sm" data-act="toggleArch">${V.arch?"← Joueurs actifs":"Voir les joueurs archivés"}</button><button class="g sm" data-act="csv">Exporter les saisies (Excel/CSV)</button></div>`}
 const FICHE=[
@@ -368,18 +413,35 @@ function playerDetail(p){
   if(tab==="resume")body=`<div class="kpis"><div class="kpi"><i>⏱️</i><b>${m7}</b><span>minutes (7 j)</span></div><div class="kpi"><i>🗓️</i><b>${m28.reduce((s,x)=>s+x.min,0)}</b><span>minutes (4 sem.)</span></div><div class="kpi"><i>🏟️</i><b>${MS.length}</b><span>match${MS.length>1?"s":""} (saison)</span></div><div class="kpi"><i>⚽</i><b>${gS}</b><span>buts (saison)</span></div><div class="kpi"><i>🅰️</i><b>${aS}</b><span>passes déc. (saison)</span></div><div class="kpi"><i>⏳</i><b>${minS}</b><span>minutes (saison)</span></div><div class="kpi"><i>${(x=>x?GE.form[Math.round(x)]:"💪")(avg(E28.map(x=>x.form)))}</i><b>${f1(avg(E28.map(x=>x.form)))}</b><span>forme moy. /5</span></div><div class="kpi"><i>${(x=>x?GE.moral[Math.round(x)]:"😊")(avg(E28.map(x=>x.moral)))}</i><b>${f1(avg(E28.map(x=>x.moral)))}</b><span>moral moy. /5</span></div></div>
    <div class="card"><h3 style="margin-bottom:8px">🕘 Dernière saisie</h3>${E[0]?`<b>${fmt(E[0].date)} · ${kindLbl(E[0])}</b> <span class="mut sm">${E[0].min?E[0].min+" min":""}</span><div class="gl" style="margin:8px 0">${E[0].kind!=="entrainement"?gaugeRow("feel",E[0].feel):""}${gaugeRow("form",E[0].form)}${gaugeRow("moral",E[0].moral)}</div>${statLine(E[0])}${injTag(E[0])}${E[0].note?`<p style="margin:6px 0 0">« ${esc(E[0].note)} »</p>`:""}${coachLine(E[0])}`:'<p class="mut">Rien pour l’instant.</p>'}</div>
    <div class="seg" role="group" aria-label="Période des graphiques" style="max-width:420px">${[["week","Semaines"],["month","Mois"],["season","Saisons"]].map(([k,l])=>`<button data-per="${k}" class="${(V.per||"week")===k?"on":""}">${l}</button>`).join("")}</div>
-   <div class="card"><h3 style="margin-bottom:6px">📉 Forme et moral</h3>${lineChart(E,V.per||"week")}</div>
-   <div class="card"><h3>⏱️ Minutes jouées par ${PER[V.per||"week"].lbl}</h3>${barChart(E,V.per||"week")}</div>`;
+   <div class="card"><div class="chd"><div><h3>Minutes jouées</h3><div class="sm mut">Par ${PER[V.per||"week"].lbl} · matchs uniquement · ${PER[V.per||"week"].title}</div></div></div>${barChart(E,V.per||"week")}</div>
+   <div class="card"><div class="chd"><div><h3>Forme et moral</h3><div class="sm mut">Note de 1 (très bas) à 5 (au top) · ${PER[V.per||"week"].subLbl} · ${PER[V.per||"week"].title}</div></div><div class="leg"><span><svg width="26" height="10"><line x1="1" x2="25" y1="5" y2="5" stroke="currentColor" stroke-width="2"/><circle cx="13" cy="5" r="3.5" fill="currentColor"/></svg>Forme</span><span><svg width="26" height="10"><line x1="1" x2="25" y1="5" y2="5" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><rect x="9.5" y="1.5" width="7" height="7" fill="var(--sf)" stroke="currentColor" stroke-width="2"/></svg>Moral</span></div></div>${lineChart(E,V.per||"week")}</div>`;
   if(tab==="fiche")body=`${FICHE.map(([t,F],i)=>`<div class="card"><h3 style="margin-bottom:12px">${t}</h3>${i===0?`<div class="row" style="align-items:center;margin-bottom:14px">${avatar(p,1)}<label class="g" style="cursor:pointer">Changer la photo<input type="file" id="photo" accept="image/*" hidden></label>${(p.info||{}).photo?'<button class="g sm" data-act="rmphoto">Retirer</button>':""}</div>`:""}
      <div class="fgrid">${F.map(fField).join("")}</div>${i===3?`<div style="margin-top:14px"><b>Historique des blessures signalées</b>${inj.length?inj.map(x=>`<div class="sm" style="margin-top:6px">${fmt(x.date)} ${new Date(x.date).getFullYear()} · ${injTag(x)}${x.note?" "+esc(x.note):""}</div>`).join(""):'<p class="mut sm" style="margin:4px 0 0">Aucune blessure signalée.</p>'}</div>`:""}</div>`).join("")}
      <p class="sm mut">Accord parental confirmé par le joueur : <b>${p.consent_at?fmtY(p.consent_at):"pas encore"}</b> · Dernière ouverture de l’appli : <b>${p.last_seen?ago(p.last_seen):"jamais"}</b></p>
      <div class="row" style="position:sticky;bottom:12px"><button class="b" data-act="fsave">Enregistrer la fiche</button><span id="fsm" class="sm" style="font-weight:600"></span></div>`;
   if(tab==="saisies")body=`<div class="card">${E.length?E.map(e=>`<div class="ent"><div><b>${fmt(e.date)} · ${kindLbl(e)}</b> <span class="sm mut">${[e.kind!=="entrainement"?e.role:"",e.min?e.min+" min":""].filter(Boolean).map(esc).join(" · ")}</span><div class="gl" style="margin-top:6px">${e.kind!=="entrainement"?gaugeRow("feel",e.feel):""}${gaugeRow("form",e.form)}${gaugeRow("moral",e.moral)}</div>${statLine(e)}${injTag(e)}${e.note?`<div class="sm" style="margin-top:4px">« ${esc(e.note)} »</div>`:""}${coachLine(e)}</div><div class="row" style="align-items:flex-start"><button class="g sm" data-eedit="${e.id}">Corriger</button><button class="g sm" data-edel="${e.id}">Supprimer</button></div></div>`).join(""):'<p class="mut">Aucune saisie.</p>'}</div>`;
-  if(tab==="notes")body=`<div class="card"><textarea id="nt" placeholder="Ex. Échange avec le club, rendez-vous parents…"></textarea><div style="margin:10px 0 4px"><button class="b" data-act="note">Ajouter la note</button></div>
+  const RH=(DB.requests||[]).filter(q=>q.player_id===p.id&&q.status==="done");
+  if(tab==="notes")body=`${RH.length?`<div class="card"><h3 style="margin-bottom:8px">🙋 Demandes de RDV traitées</h3>${RH.map(q=>`<div class="ent"><div><span class="sm mut">${fmtY(q.created_at)}${q.handled_by?" · traitée par "+esc(q.handled_by):""}</span><div><b>${esc(q.reason)}</b>${q.appt_at?" · RDV "+esc(fmtDT(q.appt_at)):""}</div>${q.message?`<div class="sm">« ${esc(q.message)} »</div>`:""}</div></div>`).join("")}</div>`:""}<div class="card"><textarea id="nt" placeholder="Ex. Échange avec le club, rendez-vous parents…"></textarea><div style="margin:10px 0 4px"><button class="b" data-act="note">Ajouter la note</button></div>
    ${N.map(n=>`<div class="ent"><div><span class="sm mut">${fmtY(n.created_at)} · ${esc(n.author||"?")}</span><div style="white-space:pre-wrap">${esc(n.text)}</div></div><button class="g sm" data-ndel="${n.id}">Supprimer</button></div>`).join("")||'<p class="mut">Aucune note.</p>'}</div>`;
   return`<div class="sp"><button class="g" data-act="back">← Tous les joueurs</button><div class="row"><button class="g" data-act="archive">${p.archived?"♻️ Réactiver":"🗄️ Archiver"}</button><button class="g" data-act="invite">Lien d’invitation</button></div></div>${p.archived?`<div class="banner">🗄️ <b>Joueur archivé.</b> Son code est désactivé : il ne peut plus faire de saisie. Ses données sont conservées.</div>`:""}
-  <div class="card"><div class="ph">${avatar(p,1)}<div class="grow"><h2>${esc(p.name)}</h2><div class="mut">${subLine(p)||"Fiche à compléter"}</div>${(p.info||{}).tel?`<div class="row" style="gap:6px;margin-top:8px"><a class="g sm" style="text-decoration:none" href="tel:${esc(p.info.tel.replace(/\s/g,""))}">📞 ${esc(p.info.tel)}</a>${waNum(p.info.tel)?`<a class="g sm" style="text-decoration:none" href="https://wa.me/${waNum(p.info.tel)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}</div>`:""}<div style="margin-top:6px">${tags(A)}</div></div></div></div>
+  <div class="card"><div class="ph">${avatar(p,1)}<div class="grow"><h2>${esc(p.name)}</h2><div class="mut">${subLine(p)||"Fiche à compléter"}</div>${(p.info||{}).tel?`<div class="row" style="gap:6px;margin-top:8px"><a class="g sm" style="text-decoration:none" href="tel:${esc(p.info.tel.replace(/\s/g,""))}">📞 ${esc(p.info.tel)}</a>${waNum(p.info.tel)?`<a class="g sm" style="text-decoration:none" href="https://wa.me/${waNum(p.info.tel)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}</div>`:""}<div style="margin-top:6px">${tags(A)}</div></div></div></div>${reqBanner(p)}
   <div class="tabs" role="tablist">${[["resume","📊 Résumé"],["fiche","🪪 Fiche"],["saisies","📋 Saisies ("+E.length+")"],["notes","📝 Notes ("+N.length+")"]].map(([k,l])=>`<button role="tab" data-tab="${k}" class="${tab===k?"on":""}">${l}</button>`).join("")}</div>${body}`}
+function reqBanner(p){const L_=(DB.requests||[]).filter(q=>q.player_id===p.id&&q.status!=="done");if(!L_.length)return"";
+  const tel=(p.info||{}).tel,wa=waNum(tel);
+  return L_.map(q=>`<div class="banner" style="margin-bottom:12px"><div class="sp" style="margin:0"><b>${q.status==="open"?"🙋 Demande de RDV":"📅 RDV fixé : "+esc(fmtDT(q.appt_at))}</b><span class="sm mut">${ago(q.created_at)}</span></div>
+   <div style="margin:6px 0"><b>${esc(q.reason)}</b>${q.pref?" · préfère "+esc(q.pref):""}${q.slots?`<div class="sm">🕒 Dispo : ${esc(q.slots)}</div>`:""}${q.message?`<div style="margin-top:4px;white-space:pre-wrap">« ${esc(q.message)} »</div>`:""}${q.agency_note?`<div class="sm mut" style="margin-top:4px">Message au joueur : « ${esc(q.agency_note)} »</div>`:""}</div>
+   <div class="row" style="gap:6px">${tel?`<a class="g sm" style="text-decoration:none" href="tel:${esc(tel.replace(/\s/g,""))}">📞 Appeler</a>`:""}${wa?`<a class="g sm" style="text-decoration:none" href="https://wa.me/${wa}?text=${encodeURIComponent("Salut "+p.name.split(" ")[0]+", j’ai bien reçu ta demande. ")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<button class="g sm" data-rqsched="${q.id}">📅 ${q.status==="open"?"Fixer le RDV":"Modifier le RDV"}</button><button class="b" style="padding:7px 14px;font-size:13px" data-rqdone="${q.id}">✅ Traitée</button></div></div>`).join("")}
+function plRow({p,E,A}){const e=E[0]||{},M=E.filter(x=>x.kind!=="entrainement"),lm=M[0],S=M.filter(x=>x.date>=SEASON()),g=S.reduce((s,x)=>s+(x.goals||0),0),a=S.reduce((s,x)=>s+(x.assists||0),0),fa=avg(S.map(x=>x.feel));
+  const st=(k,v)=>v?`<span class="emo" style="font-size:18px">${GE[k][v]}</span> ${esc(GW[k][v])}`:'<span class="mut">—</span>';
+  return`<button class="prow${A.some(x=>x[0]==="hi")?" alert":""}" data-pid="${p.id}" role="listitem">
+  <div class="c-name">${avatar(p)}<div><b>${esc(p.name)}</b><div class="sm mut">${subLine(p)||"&nbsp;"}</div></div></div>
+  <div class="c-last"><span class="lbl">Dernier match</span>${lm?`<b style="font-weight:600">${fmt(lm.date)}</b>${lm.opp?" · "+esc(lm.opp):""}<div class="sm mut">${ago(lm.date)}</div>`:'<span class="mut">—</span>'}</div>
+  <div class="c-min"><span class="lbl">Minutes</span>${lm?`<span class="num">${lm.min}</span> <span class="sm mut">min</span>`:'<span class="mut">—</span>'}</div>
+  <div class="c-feel"><span class="lbl">Ressenti moy.</span>${fa?`<span class="emo" style="font-size:18px">${GE.feel[Math.round(fa)]}</span> <span class="num">${f1(fa)}</span>`:'<span class="mut">—</span>'}</div>
+  <div class="c-form"><span class="lbl">Forme</span>${st("form",e.form)}</div>
+  <div class="c-moral"><span class="lbl">Moral</span>${st("moral",e.moral)}</div>
+  <div class="c-season"><span class="lbl">Saison</span>${S.length?`<span style="white-space:nowrap">${S.length} match${S.length>1?"s":""}</span> <span style="white-space:nowrap">⚽ ${g} · 🅰️ ${a}</span>`:'<span class="mut">—</span>'}</div>
+  <div class="c-alerts">${tags(A)}</div><span class="chev" aria-hidden="true">›</span></button>`}
 function inviteDlg(p){const link=APP_URL+"#j="+p.token,msg=`Salut ${p.name.split(" ")[0]} ! Voici ton appli de suivi DGXA : ${link}\nOuvre le lien, puis ajoute l’appli à ton écran d’accueil. Ton code joueur : ${p.token}`;
   dlg(`<h3 style="margin-bottom:6px">Lien d’invitation · ${esc(p.name)}</h3><p class="mut sm" style="margin-top:0">Envoie ce lien au joueur. Il l’ouvre une fois et ses saisies arrivent directement ici.</p>
   <div class="code" style="margin:6px 0">${esc(p.token)}</div>${(p.info||{}).tel?`<p class="sm" style="margin:0 0 8px">📱 Envoi WhatsApp au ${esc(p.info.tel)}</p>`:`<p class="sm mut" style="margin:0 0 8px">Ajoute son numéro dans la fiche pour l’envoyer directement sur son WhatsApp.</p>`}<input readonly value="${esc(link)}" onfocus="this.select()">
@@ -401,6 +463,7 @@ function resize(file){return new Promise((res,rej)=>{const img=new Image();img.o
 function render(){
   const hb=$("#hbtn");hb.innerHTML=MODE==="agency"&&LOADED?'<button data-act="reload" aria-label="Actualiser">Actualiser</button>':"";
   $("#hd").textContent=MODE==="agency"||MODE==="login"?"Agence":"Suivi des jeunes";
+  document.body.classList.toggle("wide",MODE==="agency"&&!V.sel);
   app.innerHTML=MODE==="player"?playerView():MODE==="agency"?agencyView():MODE==="login"?loginView():homeView()}
 
 /* ================= ACTIONS ================= */
@@ -409,6 +472,12 @@ document.addEventListener("click",async ev=>{
   // jauges & segments (joueur)
   if(d.gv){const g=t.closest(".gin"),k=g.dataset.g,v=+d.gv;$("#g-"+k).value=v;g.querySelector(".dots").classList.add("has");g.querySelectorAll("button").forEach(b=>{const on=+b.dataset.gv===v;b.classList.toggle("on",on);b.setAttribute("aria-checked",on)});$("#gw-"+k).textContent=GW[k][v];if(navigator.vibrate)try{navigator.vibrate(8)}catch(e){}return}
   if(d.per){V.per=d.per;return render()}
+  if(d.rqdone){const q=DB.requests.find(x=>x.id===d.rqdone);if(!await ask("Marquer cette demande comme traitée ?","Oui, traitée"))return;
+    const r=await sb.from("requests").update({status:"done",handled_by:L.me||V.email||"",updated_at:new Date().toISOString()}).eq("id",q.id).select().single();if(r.error)return toast("Erreur : "+r.error.message);Object.assign(q,r.data);toast("Demande traitée");return render()}
+  if(d.rqsched){const q=DB.requests.find(x=>x.id===d.rqsched),pad=n=>String(n).padStart(2,"0"),dt=q.appt_at?new Date(q.appt_at):null,v=dt?`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`:"";
+    dlg(`<h3 style="margin-bottom:12px">📅 Fixer le rendez-vous</h3><label class="f">Date et heure<input id="ap-d" type="datetime-local" value="${v}"></label><label class="f" style="margin-top:10px">Message pour le joueur (facultatif)<textarea id="ap-n" maxlength="500" placeholder="Ex. Je t’appelle à 18h, ou on se voit au café près du club.">${esc(q.agency_note||"")}</textarea></label><p class="sm mut">Le joueur verra la date et ce message dans son appli.</p><p id="ap-err" class="sm" style="font-weight:600;min-height:18px"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeDlg()">Annuler</button><button class="b" id="ap-ok">Enregistrer</button></div>`);
+    $("#ap-ok").onclick=async()=>{const dv=$("#ap-d").value;if(!dv){$("#ap-err").textContent="Choisissez la date et l’heure.";return}
+      const r=await sb.from("requests").update({status:"scheduled",appt_at:new Date(dv).toISOString(),agency_note:$("#ap-n").value.trim().slice(0,500),handled_by:L.me||V.email||"",updated_at:new Date().toISOString()}).eq("id",q.id).select().single();if(r.error)return toast("Erreur : "+r.error.message);Object.assign(q,r.data);closeDlg();toast("RDV enregistré · le joueur le verra dans son appli");render()};return}
   if(d.st){const el=$("#st-"+d.st);el.textContent=Math.max(0,Math.min(20,(+el.textContent||0)+(+d.d)));if(navigator.vibrate)try{navigator.vibrate(8)}catch(e){}return}
   if(d.kind){V.draft=readForm();V.draft.kind=d.kind;if(d.kind==="match"&&!V.draft.role)V.draft.role="Titulaire";return render()}
   if(d.inj!=null){V.draft=readForm();V.draft.inj=+d.inj;if(!V.draft.inj)V.draft.zone="";return render()}
@@ -443,6 +512,7 @@ document.addEventListener("click",async ev=>{
     const i=L.cache.entries.findIndex(x=>x.id===e.id);if(i>=0)L.cache.entries[i]=e;else L.cache.entries.unshift(e);
     L.queue=L.queue.filter(o=>!(o.op==="save"&&o.e.id===e.id));L.queue.push({op:"save",e});save();V.edit=null;V.draft=null;render();scrollTo(0,0);
     await playerSync(false);cheer(e,L.queue.some(o=>o.op==="save"&&o.e.id===e.id));return}
+  case"rqopen":return reqDlg("");
   case"pcancel":V.edit=null;V.draft=null;return render();
   case"install":if(INST){INST.prompt();try{await INST.userChoice}catch(e){}INST=null;render()}return;
   case"login":{const em=$("#le").value.trim(),pw=$("#lp").value;if(!sb){$("#lerr").textContent="Serveur injoignable. Vérifiez la connexion.";return}
@@ -486,6 +556,12 @@ document.addEventListener("change",async ev=>{const i=ev.target;
     const r=await sb.from("players").update({info}).eq("id",p.id).select().single();if(r.error)throw r.error;Object.assign(p,r.data);render()}catch(e){toast("Photo impossible : "+(e.message||e))}}
 });
 document.addEventListener("input",ev=>{if(ev.target.id==="q"){V.q=ev.target.value;const pos=ev.target.selectionStart;render();const q=$("#q");q.focus();q.setSelectionRange(pos,pos)}});
+function showTip(g,x,y){const t=$("#tip"),[h,...r]=g.dataset.tip.split("|");t.innerHTML="<b>"+esc(h)+"</b>"+r.map(esc).join("<br>");document.querySelectorAll(".hitg.on").forEach(e=>e.classList.remove("on"));g.classList.add("on");
+  t.classList.add("on");const W=t.offsetWidth,Hh=t.offsetHeight;t.style.left=Math.max(8,Math.min(innerWidth-W-8,x-W/2))+"px";t.style.top=Math.max(8,y-Hh-14)+"px"}
+function hideTip(){$("#tip").classList.remove("on");document.querySelectorAll(".hitg.on").forEach(e=>e.classList.remove("on"))}
+document.addEventListener("pointermove",ev=>{const g=ev.target.closest&&ev.target.closest(".hitg");if(g&&ev.pointerType==="mouse")showTip(g,ev.clientX,ev.clientY);else if(!g&&ev.pointerType==="mouse")hideTip()});
+document.addEventListener("pointerdown",ev=>{const g=ev.target.closest&&ev.target.closest(".hitg");if(g&&ev.pointerType!=="mouse"){showTip(g,ev.clientX,ev.clientY);clearTimeout(hideTip.t);hideTip.t=setTimeout(hideTip,2500)}else if(!g)hideTip()});
+addEventListener("scroll",hideTip,{passive:true});
 document.addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;const id=ev.target.id;if(id==="code")$("[data-act=joincode]").click();if(id==="lp")$("[data-act=login]").click()});
 boot();
 </script>
