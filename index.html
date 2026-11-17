@@ -304,6 +304,7 @@ async function boot(){
   if(AUTHFLOW){MODE="agency";const s=sb&&await sb.auth.getSession();if(!(s&&s.data&&s.data.session)){AUTHFLOW=null;MODE="login";V.lerr="Ce lien a expiré ou a déjà été utilisé. Entrez votre email ci-dessous puis cliquez sur « Mot de passe oublié ».";history.replaceState(null,"",location.pathname)}return render()}
   if(FROMLINK||(L.code&&!sb)){MODE="player";render();return playerSync(true)}
   if(sb){const {data}=await sb.auth.getSession();if(data&&data.session){MODE="agency";return agencyLoad()}}
+  if(H.has("agence")){MODE="login";return render()}
   if(L.code){MODE="player";render();return playerSync(true)}
   MODE=L.mode==="agency"?"login":"home";render()}
 if(sb)sb.auth.onAuthStateChange((ev,s)=>{if(ev==="PASSWORD_RECOVERY"){AUTHFLOW="setpw";MODE="agency";render()}});
